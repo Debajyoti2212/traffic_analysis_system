@@ -1,0 +1,1666 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TrafficAI - Intelligent Traffic Analytics & Safety Command Center</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+  <!-- Master Bento Application Frame -->
+  <div class="bento-app-container">
+
+    <!-- 1. LEFT SIDEBAR -->
+    <aside class="bento-sidebar">
+      <div>
+        <!-- macOS Window Traffic Lights -->
+        <div class="macos-window-dots">
+          <div class="macos-dot macos-dot-close" title="Close"></div>
+          <div class="macos-dot macos-dot-min" title="Minimize"></div>
+          <div class="macos-dot macos-dot-max" title="Full Screen"></div>
+        </div>
+
+        <!-- Brand Logo -->
+        <div class="flex items-center gap-3 mb-6">
+          <div
+            class="w-8 h-8 rounded-xl bg-gradient-to-br from-[#ffd60a] to-[#ff9f0a] flex items-center justify-center text-[#191a1f] shadow-md shadow-[#ffd60a]/20">
+            <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+              <path d="M7 4L3 8L7 12L11 8L7 4ZM17 4L13 8L17 12L21 8L17 4ZM12 11L8 15L12 19L16 15L12 11Z" />
+            </svg>
+          </div>
+          <span class="text-xl font-bold tracking-tight text-white font-sans">TrafficAI</span>
+        </div>
+
+        <!-- User Profile Card -->
+        <div class="officer-glass-card mb-6">
+          <div class="relative mb-2.5">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80"
+              alt="Officer Avatar"
+              class="w-13 h-13 rounded-full object-cover border-2 border-[#ffd60a]/80 p-0.5 shadow-md">
+          </div>
+          <h3 class="text-sm font-bold text-white tracking-tight">Officer In-Charge</h3>
+          <button
+            class="mt-1.5 px-3 py-0.5 text-[11px] font-medium text-gray-400 bg-white/5 rounded-full border border-white/10 hover:text-white hover:bg-white/10 transition">
+            Traffic Control Room
+          </button>
+        </div>
+
+        <!-- Vertical Navigation Links (7 Dedicated Sections) -->
+        <nav class="space-y-1.5">
+          <div onclick="switchSidebarView('overview')" id="nav-overview" class="bento-nav-item active">
+            <i data-lucide="layout-grid" class="w-4 h-4"></i>
+            <span>1. Overview</span>
+          </div>
+          <div onclick="switchSidebarView('camera')" id="nav-camera" class="bento-nav-item">
+            <i data-lucide="video" class="w-4 h-4"></i>
+            <span>2. Camera View</span>
+          </div>
+          <div onclick="switchSidebarView('alerts')" id="nav-alerts" class="bento-nav-item">
+            <i data-lucide="shield-alert" class="w-4 h-4"></i>
+            <span>3. Alerts & Review</span>
+          </div>
+          <div onclick="switchSidebarView('analytics')" id="nav-analytics" class="bento-nav-item">
+            <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+            <span>4. Analytics</span>
+          </div>
+          <div onclick="switchSidebarView('mleval')" id="nav-mleval" class="bento-nav-item">
+            <i data-lucide="cpu" class="w-4 h-4"></i>
+            <span>5. ML Evaluation</span>
+          </div>
+          <div onclick="switchSidebarView('complaints')" id="nav-complaints" class="bento-nav-item">
+            <i data-lucide="message-square" class="w-4 h-4"></i>
+            <span>6. Public Complaints</span>
+          </div>
+          <div onclick="switchSidebarView('settings')" id="nav-settings" class="bento-nav-item">
+            <i data-lucide="settings" class="w-4 h-4"></i>
+            <span>7. Settings & Info</span>
+          </div>
+        </nav>
+      </div>
+
+      <!-- Bottom Light/Dark Switch -->
+      <div class="pt-6">
+        <div class="theme-switch-capsule" onclick="toggleTheme()" id="themeSwitchCapsule" role="button" tabindex="0"
+          title="Toggle Light / Dark Mode">
+          <span id="themeLabelLight" class="text-xs transition-colors cursor-pointer">Light</span>
+          <div class="theme-switch-slider" id="themeSwitchSlider">
+            <div class="theme-switch-thumb" id="themeSwitchThumb"></div>
+          </div>
+          <span id="themeLabelDark"
+            class="text-white font-semibold text-xs transition-colors cursor-pointer">Dark</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 2. MAIN BENTO CANVAS -->
+    <main class="bento-main">
+
+      <!-- Top Header Row -->
+      <header class="bento-header">
+        <h1 id="pageHeading" class="text-2xl font-extrabold text-white tracking-tight">Overview & Traffic Statistics
+        </h1>
+
+        <!-- Search Bar with Apple Frosted Glass Pill -->
+        <div class="bento-search-pill-container">
+          <i data-lucide="search" class="w-4 h-4 text-gray-400"></i>
+          <input type="text" id="globalSearchInput" placeholder="Search violations, camera IDs, incidents..."
+            class="bento-search-pill" onkeydown="handleGlobalSearch(event)">
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center gap-3">
+          <!-- Quick Theme Toggle Circle Action Button -->
+          <button id="headerThemeBtn" class="btn-circle-action" onclick="toggleTheme()" title="Switch Light/Dark Theme"
+            aria-label="Toggle Theme">
+            <i data-lucide="moon" id="headerThemeIcon" class="w-4 h-4 text-gray-300"></i>
+          </button>
+
+          <!-- Upload Video Pill Button -->
+          <label class="btn-yellow-pill">
+            <i data-lucide="upload" class="w-4 h-4"></i>
+            <span>Upload Video</span>
+            <input type="file" id="videoFileInput" accept="video/*,image/*" class="hidden"
+              onchange="handleVideoUpload(this)">
+          </label>
+
+          <!-- Notification Bell Circle -->
+          <div class="btn-circle-action relative" onclick="toggleNotifications()">
+            <i data-lucide="bell" class="w-4 h-4 text-gray-300"></i>
+            <span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-[#faea73]"></span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Video Upload Status Toast -->
+      <div id="uploadStatusBanner"
+        class="hidden mb-4 p-3 rounded-2xl bg-[#25262c] border border-[#faea73]/40 text-xs text-white flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-[#faea73] animate-ping"></span>
+          <span id="uploadStatusText">Uploading video...</span>
+        </div>
+        <button onclick="document.getElementById('uploadStatusBanner').classList.add('hidden')"
+          class="text-gray-400 hover:text-white">&times;</button>
+      </div>
+
+      <!-- ============================================================== -->
+      <!-- SECTION 1: OVERVIEW -->
+      <!-- ============================================================== -->
+      <div id="view-overview" class="view-section space-y-6">
+
+        <!-- Filters Bar: date/time, camera, location, and event type -->
+        <div
+          class="bg-[#24252c] rounded-2xl p-4 border border-white/5 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div class="flex flex-wrap items-center gap-3">
+            <div class="flex items-center gap-2">
+              <span class="text-gray-400 font-semibold flex items-center gap-1.5">
+                <i data-lucide="calendar" class="w-3.5 h-3.5 text-[#faea73]"></i> Period:
+              </span>
+              <select id="filterPeriod" onchange="applyOverviewFilters()"
+                class="bg-[#1b1c21] text-gray-200 border border-gray-700/60 rounded-xl px-3 py-1.5 focus:border-[#faea73] focus:outline-none">
+                <option value="today">Today (Live)</option>
+                <option value="yesterday">Yesterday</option>
+                <option value="last7days">Past 7 Days</option>
+                <option value="custom">Custom Date Range</option>
+              </select>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <span class="text-gray-400 font-semibold flex items-center gap-1.5">
+                <i data-lucide="video" class="w-3.5 h-3.5 text-[#faea73]"></i> Camera:
+              </span>
+              <select id="filterCamera" onchange="applyOverviewFilters()"
+                class="bg-[#1b1c21] text-gray-200 border border-gray-700/60 rounded-xl px-3 py-1.5 focus:border-[#faea73] focus:outline-none">
+                <option value="all">All Cameras (01 - 04)</option>
+                <option value="cam04" selected>Cam 04 - Sector 14 Junction</option>
+                <option value="cam02">Cam 02 - NH-44 Flyover</option>
+                <option value="cam01">Cam 01 - GT Road Crossing</option>
+              </select>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <span class="text-gray-400 font-semibold flex items-center gap-1.5">
+                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-[#faea73]"></i> Location:
+              </span>
+              <select id="filterLocation" onchange="applyOverviewFilters()"
+                class="bg-[#1b1c21] text-gray-200 border border-gray-700/60 rounded-xl px-3 py-1.5 focus:border-[#faea73] focus:outline-none">
+                <option value="all">All Locations</option>
+                <option value="sector14" selected>Sector 14 Smart Junction</option>
+                <option value="nh44">NH-44 Corridor</option>
+                <option value="ringroad">Outer Ring Road</option>
+              </select>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <span class="text-gray-400 font-semibold flex items-center gap-1.5">
+                <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-[#faea73]"></i> Event Type:
+              </span>
+              <select id="filterEventType" onchange="applyOverviewFilters()"
+                class="bg-[#1b1c21] text-gray-200 border border-gray-700/60 rounded-xl px-3 py-1.5 focus:border-[#faea73] focus:outline-none">
+                <option value="all">All Events & Violations</option>
+                <option value="helmet">No Helmet</option>
+                <option value="seatbelt">No Seatbelt</option>
+                <option value="red_light">Red Light Crossing</option>
+                <option value="gridlock">Emergency Gridlock</option>
+              </select>
+            </div>
+          </div>
+
+          <button onclick="applyOverviewFilters()"
+            class="btn-yellow-pill text-xs py-1.5 px-4 flex items-center gap-1.5">
+            <i data-lucide="filter" class="w-3.5 h-3.5"></i>
+            <span>Apply Filters</span>
+          </button>
+        </div>
+
+        <!-- 4 Main Counts Summary Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Card 1: Vehicles & Classification Breakdown -->
+          <div
+            class="summary-stat-card bg-[#24252c] p-4 rounded-3xl border border-white/5 space-y-2 group cursor-pointer"
+            onclick="navigateToSummaryCard('vehicles')" role="button" tabindex="0"
+            title="Click to view Vehicle Analytics & Detected Vehicle Records">
+            <div class="flex items-center justify-between text-xs text-gray-400 font-medium">
+              <span class="group-hover:text-white transition-colors">Unique Vehicles</span>
+              <button class="summary-stat-icon-btn"
+                onclick="navigateToSummaryCard('vehicles'); event.stopPropagation();"
+                title="Open Vehicle Analytics & Records" aria-label="Open Vehicle Analytics">
+                <i data-lucide="car" class="w-4 h-4 text-[#faea73] group-hover:scale-110 transition-transform"></i>
+              </button>
+            </div>
+            <div class="flex items-baseline gap-2">
+              <span id="overviewVehiclesCount" class="text-2xl font-black text-white">0</span>
+              <span
+                class="text-[10px] text-emerald-400 font-bold tracking-tight bg-emerald-950/80 px-2 py-0.5 rounded-full border border-emerald-800/40">1x
+                per Session</span>
+            </div>
+            <div class="text-[10px] text-gray-300 grid grid-cols-3 gap-1 pt-1 border-t border-white/5 font-mono">
+              <span>Cars: <strong id="cntCars" class="text-white">0</strong></span>
+              <span>Taxis: <strong id="cntTaxis" class="text-[#faea73]">0</strong></span>
+              <span>Bikes: <strong id="cntBikes" class="text-white">0</strong></span>
+              <span>Autos: <strong id="cntAutos" class="text-[#faea73]">0</strong></span>
+              <span>Buses: <strong id="cntBuses" class="text-white">0</strong></span>
+              <span>Trucks: <strong id="cntTrucks" class="text-white">0</strong></span>
+            </div>
+          </div>
+
+          <!-- Card 2: Violations by Category -->
+          <div
+            class="summary-stat-card bg-[#24252c] p-4 rounded-3xl border border-white/5 space-y-2 group cursor-pointer"
+            onclick="navigateToSummaryCard('violations')" role="button" tabindex="0"
+            title="Click to view Detected Violations Review Queue">
+            <div class="flex items-center justify-between text-xs text-gray-400 font-medium">
+              <span class="group-hover:text-white transition-colors">Candidate Violations</span>
+              <button class="summary-stat-icon-btn"
+                onclick="navigateToSummaryCard('violations'); event.stopPropagation();"
+                title="Open Violations Review Queue" aria-label="Open Violations Review Queue">
+                <i data-lucide="alert-octagon"
+                  class="w-4 h-4 text-red-400 group-hover:scale-110 transition-transform"></i>
+              </button>
+            </div>
+            <div class="flex items-baseline gap-2">
+              <span id="overviewViolationsCount" class="text-2xl font-black text-white">0</span>
+              <span id="overviewViolationsBadge"
+                class="text-[10px] font-bold text-red-400 bg-red-950/80 px-2 py-0.5 rounded-full border border-red-800/40">Needs
+                Review</span>
+            </div>
+            <div class="text-[10px] text-gray-300 grid grid-cols-2 gap-1 pt-1 border-t border-white/5 font-mono">
+              <span>Helmet: <strong id="ovHelmet" class="text-red-400">0</strong></span>
+              <span>Seatbelt: <strong id="ovSeatbelt" class="text-red-400">0</strong></span>
+              <span>Overload: <strong id="ovOverloading" class="text-yellow-400">0</strong></span>
+              <span>Red Light: <strong id="ovRedLight" class="text-red-400">0</strong></span>
+            </div>
+          </div>
+
+          <!-- Card 3: Complaints Received -->
+          <div
+            class="summary-stat-card bg-[#24252c] p-4 rounded-3xl border border-white/5 space-y-2 group cursor-pointer"
+            onclick="navigateToSummaryCard('complaints')" role="button" tabindex="0"
+            title="Click to open Complaints Management">
+            <div class="flex items-center justify-between text-xs text-gray-400 font-medium">
+              <span class="group-hover:text-white transition-colors">Complaints Received</span>
+              <button class="summary-stat-icon-btn"
+                onclick="navigateToSummaryCard('complaints'); event.stopPropagation();"
+                title="Open Complaints Management" aria-label="Open Complaints Management">
+                <i data-lucide="message-square"
+                  class="w-4 h-4 text-[#faea73] group-hover:scale-110 transition-transform"></i>
+              </button>
+            </div>
+            <div class="flex items-baseline gap-2">
+              <span id="overviewComplaintsCount" class="text-2xl font-black text-white">12</span>
+              <span
+                class="text-[10px] font-bold text-yellow-400 bg-yellow-950/60 px-2 py-0.5 rounded-full border border-yellow-800/40">Citizen
+                Triage</span>
+            </div>
+            <div class="text-[11px] text-gray-400 flex items-center justify-between pt-1 border-t border-white/5">
+              <span>Resolved: <strong id="overviewResolvedComplaints" class="text-emerald-400">4</strong></span>
+              <span>Under Review: <strong id="overviewReviewingComplaints" class="text-[#faea73]">5</strong></span>
+            </div>
+          </div>
+
+          <!-- Card 4: ANPR & Human Review Queue -->
+          <div
+            class="summary-stat-card bg-[#24252c] p-4 rounded-3xl border border-white/5 space-y-2 group cursor-pointer"
+            onclick="navigateToSummaryCard('anpr')" role="button" tabindex="0"
+            title="Click to open ANPR & Review Queue">
+            <div class="flex items-center justify-between text-xs text-gray-400 font-medium">
+              <span class="group-hover:text-white transition-colors">ANPR & Review Queue</span>
+              <button class="summary-stat-icon-btn" onclick="navigateToSummaryCard('anpr'); event.stopPropagation();"
+                title="Open ANPR & Review Queue" aria-label="Open ANPR & Review Queue">
+                <i data-lucide="maximize-2"
+                  class="w-4 h-4 text-[#faea73] group-hover:scale-110 transition-transform"></i>
+              </button>
+            </div>
+            <div class="flex items-baseline justify-between text-[11px]">
+              <div>
+                <span class="text-[10px] text-gray-400 block">ANPR Plates:</span>
+                <span class="text-xs text-emerald-400 font-bold font-mono">Read: <strong
+                    id="ovPlatesRead">0</strong></span> |
+                <span class="text-xs text-amber-400 font-bold font-mono">Unread: <strong
+                    id="ovPlatesUnreadable">0</strong></span>
+              </div>
+              <div class="text-right">
+                <span class="text-[10px] text-gray-400 block">Review:</span>
+                <span id="overviewPendingReviewCount" class="text-sm font-black text-[#faea73]">0</span>
+                <span class="text-[10px] text-gray-400">pending</span>
+              </div>
+            </div>
+            <div class="text-[11px] text-gray-400 flex items-center justify-between pt-1 border-t border-white/5">
+              <span>Approved: <strong id="ovApprovedCount" class="text-emerald-400">0</strong></span>
+              <button onclick="navigateToSummaryCard('anpr'); event.stopPropagation();"
+                class="text-[11px] text-[#faea73] hover:underline font-semibold">Review Alerts &rarr;</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 6 Bento Grid Widgets (Matching Reference Theme) -->
+        <div class="bento-grid">
+
+          <!-- 1. YELLOW CARD: TRAFFIC VOLUME & CLASSIFICATION (Top-Left) -->
+          <div class="card-bento-yellow">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-bold text-[#191a1f] tracking-tight">Traffic Volume</h3>
+              <span
+                class="text-xs font-semibold text-[#191a1f]/70 cursor-pointer hover:underline flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-ping"></span> Live
+              </span>
+            </div>
+
+            <!-- Donut Graphic with Live Count in Center -->
+            <div class="relative flex items-center justify-center my-3">
+              <div class="w-32 h-32 relative">
+                <canvas id="bentoDonutCanvas"></canvas>
+                <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                  <span id="bentoTotalVehicles" class="text-2xl font-black text-[#191a1f] tracking-tight">0</span>
+                  <span class="text-[9px] font-bold text-[#191a1f]/60 uppercase tracking-widest -mt-1">Vehicles</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Legend: Real-Time Two-Wheelers vs Four-Wheelers -->
+            <div class="space-y-1.5 text-xs font-bold text-[#191a1f]">
+              <div class="flex items-center justify-between">
+                <span class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-sm bg-[#191a1f]"></span>
+                  Two-Wheelers</span>
+                <span id="bentoTwoWheelersPct">0%</span>
+              </div>
+              <div class="flex items-center justify-between text-[#191a1f]/70">
+                <span class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-sm bg-[#191a1f]/40"></span>
+                  Four-Wheelers</span>
+                <span id="bentoFourWheelersPct">0%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. DARK PATTERN CARD: SAFETY AUDIT (Top-Middle) -->
+          <div class="card-bento-pattern">
+            <div class="flex items-center justify-between z-10">
+              <span
+                class="px-4 py-1.5 rounded-full text-xs font-semibold text-gray-300 bg-[#2d2e36] border border-white/5">Safety
+                Audit</span>
+              <span id="bentoYearTag" class="text-xs font-semibold text-gray-500 font-mono">/ 2026</span>
+            </div>
+
+            <!-- Decorative Geometric SVG Center -->
+            <div class="flex-1 flex items-center justify-center my-4 opacity-20 pointer-events-none">
+              <svg class="w-28 h-28 stroke-gray-400 fill-none" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="40" stroke-width="1.5" stroke-dasharray="4 4" />
+                <circle cx="50" cy="50" r="24" stroke-width="1.5" />
+                <path d="M10 50 Q50 10 90 50 Q50 90 10 50" stroke-width="1.2" />
+              </svg>
+            </div>
+
+            <!-- Frosted Download Button -->
+            <div class="z-10">
+              <button onclick="triggerAuditReportGeneration()" class="btn-frosted-pill w-full justify-between">
+                <span>Download Safety Audit</span>
+                <i data-lucide="download" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- 3. CRISP WHITE CARD: VIOLATION RATE (Top-Right) -->
+          <div class="card-bento-white">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-bold text-[#191a1f]">Violation Rate</h3>
+              <div onclick="switchSidebarView('analytics')"
+                class="w-8 h-8 rounded-full bg-[#191a1f] flex items-center justify-center text-white cursor-pointer hover:scale-105 transition"
+                title="View Analytics">
+                <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+              </div>
+            </div>
+
+            <!-- Calendar Days Pills (Live Real Dates) -->
+            <div class="flex items-center justify-between gap-2 my-2">
+              <div class="calendar-pill flex-1" id="calPillPrev">
+                <span id="calDayPrev">--</span>
+                <span id="calDatePrev" class="text-base font-bold">--</span>
+              </div>
+              <div class="calendar-pill active flex-1" id="calPillCurr">
+                <span id="calDayCurr">--</span>
+                <span id="calDateCurr" class="text-base font-bold">--</span>
+              </div>
+              <div class="calendar-pill flex-1" id="calPillNext">
+                <span id="calDayNext">--</span>
+                <span id="calDateNext" class="text-base font-bold">--</span>
+              </div>
+            </div>
+
+            <!-- Big Live Metric -->
+            <div>
+              <div class="flex items-baseline gap-3">
+                <span id="bentoViolationRate" class="text-4xl font-extrabold text-[#191a1f] tracking-tight">0.0%</span>
+                <span id="bentoTotalViolationsBadge"
+                  class="text-xs font-bold text-red-600 bg-red-100 px-2 py-0.5 rounded-full">0 logged</span>
+              </div>
+              <span id="bentoViolationsSubtext" class="text-xs text-gray-500 font-medium">Real-time camera
+                enforcement</span>
+            </div>
+          </div>
+
+          <!-- 4. DARK EDGE INFERENCE / LATENCY CARD (Bottom-Left) -->
+          <div class="card-bento-dark">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <i data-lucide="cpu" class="w-4 h-4 text-[#faea73]"></i>
+                <h3 class="text-sm font-bold text-white">Edge Inference</h3>
+              </div>
+              <span class="text-xs text-gray-400 cursor-pointer hover:text-white">YOLOv8</span>
+            </div>
+
+            <div class="my-2">
+              <div id="bentoFps" class="text-3xl font-extrabold text-white tracking-tight">-- FPS</div>
+              <p id="bentoLatency" class="text-xs text-gray-400 mt-0.5">Real-Time Edge Latency (-- ms)</p>
+            </div>
+
+            <!-- Sinusoidal Wavy Line Canvas -->
+            <div class="h-16 w-full relative">
+              <canvas id="bentoWavyCanvas"></canvas>
+            </div>
+          </div>
+
+          <!-- 5. FEATURED / CCTV FEED CARD (Bottom-Middle) -->
+          <div class="card-bento-media group">
+            <!-- Video Stream Frame -->
+            <img id="cctvLiveStream" src="http://localhost:8000/api/cv/stream-demo" alt="Live CCTV Surveillance Feed"
+              class="w-full h-full object-cover">
+
+            <!-- Overlaid Live Stream Overlay Pill Button -->
+            <div class="absolute bottom-5 inset-x-0 flex justify-center z-10">
+              <button onclick="switchSidebarView('camera')"
+                class="px-5 py-2.5 rounded-full bg-[#faea73] text-[#191a1f] text-xs font-extrabold flex items-center gap-2 shadow-xl hover:scale-105 transition">
+                <span class="w-2 h-2 rounded-full bg-red-600 animate-pulse"></span>
+                <span>Open Camera View</span>
+              </button>
+            </div>
+
+            <!-- Top HUD Badges -->
+            <div
+              class="absolute top-3 inset-x-3 flex items-center justify-between text-[11px] font-mono pointer-events-none">
+              <span class="bg-black/70 backdrop-blur px-2.5 py-1 rounded-full text-white">Cam 04 - Sector 14</span>
+              <span id="hudFps" class="bg-black/70 backdrop-blur px-2.5 py-1 rounded-full text-[#faea73] font-bold">28.5
+                FPS</span>
+            </div>
+          </div>
+
+          <!-- 6. BAR CHART CARD: SAFETY VIOLATIONS BREAKDOWN (Bottom-Right) -->
+          <div class="card-bento-chart">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-bold text-white">Violations Breakdown</h3>
+              <span id="bentoViolationsPeriod" class="text-xs text-gray-400">Live Stream</span>
+            </div>
+
+            <!-- Custom Minimal Bar Chart Matching Reference -->
+            <div class="relative my-2 pt-4">
+              <!-- Floating Yellow Tooltip Pill on Highlighted Bar -->
+              <div id="bentoTopViolationPill"
+                class="absolute top-0 left-[48%] -translate-x-1/2 bg-[#faea73] text-[#191a1f] text-[10px] font-extrabold px-2 py-0.5 rounded-full shadow-lg transition-all duration-300">
+                Red Light 0%
+              </div>
+
+              <!-- Bar Columns Container with Dynamic Heights -->
+              <div class="flex items-end justify-between h-24 gap-3 px-2 border-b border-gray-800 pb-1">
+                <div id="barHelmet" class="flex-1 bg-[#2e3039] rounded-md transition-all duration-500 h-[15%]"
+                  title="No Helmet"></div>
+                <div id="barSeatbelt" class="flex-1 bg-[#2e3039] rounded-md transition-all duration-500 h-[15%]"
+                  title="No Seatbelt"></div>
+                <!-- Highlighted Yellow Hatched Bar -->
+                <div id="barRedLight"
+                  class="flex-1 bar-yellow-hatched transition-all duration-500 h-[25%] shadow-lg shadow-[#faea73]/20"
+                  title="Red Light Stop-Line"></div>
+                <div id="barWrongWay" class="flex-1 bg-[#2e3039] rounded-md transition-all duration-500 h-[15%]"
+                  title="Wrong Way"></div>
+                <div id="barSpeed" class="flex-1 bg-[#2e3039] rounded-md transition-all duration-500 h-[15%]"
+                  title="Speeding / Stalled"></div>
+              </div>
+
+              <!-- X-Axis Labels & Live Counts -->
+              <div class="flex justify-between text-[10px] text-gray-400 font-medium mt-1.5 px-0.5 text-center">
+                <div class="flex-1"><span class="block text-[9px] text-gray-500 font-mono"
+                    id="cntHelmet">0</span><span>Helmet</span></div>
+                <div class="flex-1"><span class="block text-[9px] text-gray-500 font-mono"
+                    id="cntSeatbelt">0</span><span>Seatbelt</span></div>
+                <div class="flex-1"><span class="block text-[9px] text-[#faea73] font-bold font-mono"
+                    id="cntRedLight">0</span><span class="text-[#faea73] font-bold">Red Light</span></div>
+                <div class="flex-1"><span class="block text-[9px] text-gray-500 font-mono"
+                    id="cntWrongWay">0</span><span>Wrong-Way</span></div>
+                <div class="flex-1"><span class="block text-[9px] text-gray-500 font-mono"
+                    id="cntSpeed">0</span><span>Speed</span></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ============================================================== -->
+      <!-- SECTION 2: LIVE OR RECORDED CAMERA VIEW -->
+      <!-- ============================================================== -->
+      <div id="view-camera" class="view-section hidden space-y-6">
+        <!-- Camera View Header & Switchers -->
+        <div
+          class="flex flex-wrap items-center justify-between bg-[#24252c] p-4 rounded-2xl border border-white/5 gap-3">
+          <div class="flex items-center gap-3">
+            <span class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></span>
+            <div>
+              <div class="flex items-center gap-2">
+                <h2 id="cameraFeedTitle" class="text-sm font-bold text-white">Sector 14 Smart Junction — Video Detection
+                  Stream</h2>
+                <span id="camSessionBadge"
+                  class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-yellow-950/80 text-[#faea73] border border-yellow-700/60 flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#faea73] animate-ping"></span>
+                  <span id="camSessionText">Processing</span>
+                </span>
+              </div>
+              <p class="text-[11px] text-gray-400">Single-Pass Video Analysis: No duplicate counting & no automatic
+                replay</p>
+            </div>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <button onclick="toggleClahe()" id="btnClaheToggle"
+              class="px-3 py-1.5 bg-[#1b1c21] hover:bg-[#2d2e37] text-gray-300 text-xs font-semibold rounded-full border border-white/10 transition">
+              CLAHE Night-Boost: OFF
+            </button>
+            <button onclick="handleRestartVideo()" id="btnRestartVideo"
+              title="Explicitly restart video from frame 0 in a brand new session"
+              class="px-3 py-1.5 bg-[#1b1c21] hover:bg-[#2d2e37] text-[#faea73] text-xs font-bold rounded-full border border-[#faea73]/40 transition flex items-center gap-1.5 cursor-pointer">
+              <i data-lucide="rotate-ccw" class="w-3 h-3"></i>
+              <span>Restart Video</span>
+            </button>
+            <button onclick="handleStopVideo()" id="btnStopVideo" title="Stop video processing"
+              class="px-3 py-1.5 bg-[#1b1c21] hover:bg-red-950/60 text-red-400 text-xs font-semibold rounded-full border border-red-800/40 transition flex items-center gap-1.5 cursor-pointer">
+              <i data-lucide="square" class="w-3 h-3"></i>
+              <span>Stop</span>
+            </button>
+            <button onclick="resetToDemoStream()" id="btnResetDemo"
+              class="px-3 py-1.5 bg-[#1b1c21] hover:bg-[#2d2e37] text-gray-300 text-xs font-semibold rounded-full border border-white/10 transition">
+              Demo Video
+            </button>
+            <label class="btn-yellow-pill text-xs py-1.5 px-3.5 cursor-pointer flex items-center gap-1.5">
+              <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+              <span>New Video Upload</span>
+              <input type="file" accept="video/*" class="hidden" onchange="handleVideoUpload(this)">
+            </label>
+          </div>
+        </div>
+
+        <!-- Video Player Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2 bg-[#202127] rounded-3xl p-4 border border-white/5 space-y-3">
+            <div class="aspect-[16/10] bg-black rounded-2xl overflow-hidden relative border border-white/5">
+              <img id="surveillanceStream" src="http://localhost:8000/api/cv/stream-demo"
+                class="w-full h-full object-cover" alt="Camera Stream">
+
+              <!-- Real-Time Diagnostics HUD -->
+              <div
+                class="absolute top-3 left-3 bg-black/80 backdrop-blur px-3 py-1.5 rounded-xl text-xs font-mono text-gray-200 border border-white/10 space-y-0.5">
+                <div>Stop-Line: <span class="text-[#faea73] font-bold">Y = 312px</span> | Speed: <span
+                    class="text-emerald-400 font-bold" id="camStreamFps">28.5 FPS</span></div>
+                <div class="text-[10px] text-gray-400">Signal State: <span id="camStreamSignal"
+                    class="text-emerald-400 font-bold">GREEN</span> | Density: <span id="camStreamDensity"
+                    class="text-[#faea73]">MODERATE</span></div>
+              </div>
+
+              <!-- Top-Right Red Light Crossing Alert -->
+              <div id="redLightCrossingBadge"
+                class="hidden absolute top-3 right-3 bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg animate-pulse flex items-center gap-1.5">
+                <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>
+                <span>POSSIBLE RED-LIGHT CROSSING</span>
+              </div>
+            </div>
+
+            <!-- Detection Labels & Detection Legend -->
+            <div
+              class="bg-[#1b1c21] p-3.5 rounded-2xl border border-white/5 flex flex-wrap items-center justify-between gap-2 text-xs">
+              <div class="flex items-center gap-3">
+                <span class="text-gray-400 font-semibold">Active Classes:</span>
+                <span
+                  class="px-2.5 py-1 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-800/40 font-mono text-[11px]">&bull;
+                  Car / Truck / Bus</span>
+                <span
+                  class="px-2.5 py-1 rounded-full bg-cyan-950/80 text-cyan-300 border border-cyan-800/40 font-mono text-[11px]">&bull;
+                  Motorcycle / Pedestrian</span>
+                <span
+                  class="px-2.5 py-1 rounded-full bg-yellow-950/80 text-yellow-300 border border-yellow-800/40 font-mono text-[11px]">&bull;
+                  Rider Helmet Status</span>
+                <span
+                  class="px-2.5 py-1 rounded-full bg-red-950/80 text-red-300 border border-red-800/40 font-mono text-[11px]">&bull;
+                  Driver Seatbelt Status</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Snapshots Sidebar / Quick Review Cards -->
+          <div class="bg-[#24252c] rounded-3xl p-5 border border-white/5 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h3 class="text-sm font-bold text-white">e-Challan Snapshots</h3>
+                  <p class="text-[11px] text-gray-400">Evidence captured from video detections</p>
+                </div>
+                <button onclick="pollSnapshots()"
+                  class="text-xs text-[#faea73] font-semibold hover:underline">Refresh</button>
+              </div>
+              <div id="snapshotCarousel" class="space-y-2 max-h-[460px] overflow-y-auto pr-1">
+                <div class="text-gray-500 text-center py-8 text-xs">Waiting for stream violations...</div>
+              </div>
+            </div>
+            <div class="pt-4 border-t border-white/5">
+              <button onclick="switchSidebarView('alerts')" class="btn-yellow-pill w-full text-xs py-2 justify-center">
+                <span>Go to Human Review Queue &rarr;</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================================== -->
+      <!-- SECTION 3: ALERTS AND EVENT REVIEW -->
+      <!-- ============================================================== -->
+      <div id="view-alerts" class="view-section hidden space-y-6">
+
+        <!-- Human Review Notice Banner -->
+        <div class="bg-[#24252c] p-4 rounded-2xl border border-white/5 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-[#faea73] text-[#191a1f] flex items-center justify-center font-bold">
+              <i data-lucide="shield-check" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h2 class="text-sm font-bold text-white">Human-in-the-Loop Event Review Queue</h2>
+              <p class="text-xs text-gray-400">All AI detections require officer verification before generating official
+                e-Challan notices.</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span
+              class="px-3 py-1 rounded-full bg-yellow-950/60 border border-yellow-500/30 text-[#faea73] text-xs font-semibold">
+              Needs Review: <strong id="alertStatNeedsReview">0</strong>
+            </span>
+            <span
+              class="px-3 py-1 rounded-full bg-emerald-950/60 border border-emerald-500/30 text-emerald-400 text-xs font-semibold">
+              Confirmed: <strong id="alertStatConfirmed">0</strong>
+            </span>
+          </div>
+        </div>
+
+        <!-- ANPR & Review Queue Status Strip -->
+        <div id="anprReviewQueueStrip" class="bg-[#24252c] p-4 rounded-2xl border border-white/5 space-y-2">
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-white font-bold flex items-center gap-2">
+              <i data-lucide="maximize-2" class="w-3.5 h-3.5 text-[#faea73]"></i>
+              ANPR & Number Plate Verification Telemetry
+            </span>
+            <span class="text-[11px] text-gray-400 font-mono">EasyOCR & YOLOv8 ANPR Pipeline</span>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-1">
+            <div class="bg-[#1b1c21] p-2.5 rounded-xl border border-white/5 text-center">
+              <span class="text-[10px] text-gray-400 block">Total ANPR Evaluated</span>
+              <span id="anprStripTotal" class="text-base font-black text-white">0</span>
+            </div>
+            <div class="bg-[#1b1c21] p-2.5 rounded-xl border border-white/5 text-center">
+              <span class="text-[10px] text-emerald-400 block">Legible Plates Read</span>
+              <span id="anprStripRead" class="text-base font-black text-emerald-400">0</span>
+            </div>
+            <div class="bg-[#1b1c21] p-2.5 rounded-xl border border-white/5 text-center">
+              <span class="text-[10px] text-amber-400 block">Unread / Obscured</span>
+              <span id="anprStripUnread" class="text-base font-black text-amber-400">0</span>
+            </div>
+            <div class="bg-[#1b1c21] p-2.5 rounded-xl border border-white/5 text-center">
+              <span class="text-[10px] text-[#faea73] block">Pending Officer Review</span>
+              <span id="anprStripPending" class="text-base font-black text-[#faea73]">0</span>
+            </div>
+            <div class="bg-[#1b1c21] p-2.5 rounded-xl border border-white/5 text-center">
+              <span class="text-[10px] text-cyan-400 block">Officer Approved</span>
+              <span id="anprStripApproved" class="text-base font-black text-cyan-400">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filters for Alerts Table -->
+        <div
+          class="bg-[#24252c] p-4 rounded-2xl border border-white/5 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div class="flex flex-wrap items-center gap-3">
+            <div class="flex items-center gap-2">
+              <span class="text-gray-400 font-semibold">Filter Status:</span>
+              <select id="alertFilterStatus" onchange="filterAlertsTable()"
+                class="bg-[#1b1c21] text-gray-200 border border-gray-700/60 rounded-xl px-3 py-1.5 focus:border-[#faea73] focus:outline-none">
+                <option value="all">All Review States</option>
+                <option value="Needs review" selected>Needs Review</option>
+                <option value="Confirmed">Confirmed</option>
+                <option value="Dismissed">Dismissed</option>
+              </select>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-gray-400 font-semibold">Event Type:</span>
+              <select id="alertFilterType" onchange="filterAlertsTable()"
+                class="bg-[#1b1c21] text-gray-200 border border-gray-700/60 rounded-xl px-3 py-1.5 focus:border-[#faea73] focus:outline-none">
+                <option value="all">All Violation Types</option>
+                <option value="NO_HELMET">No Helmet</option>
+                <option value="NO_SEATBELT">No Seatbelt</option>
+                <option value="RED_LIGHT_JUMP">Red Light Jump</option>
+              </select>
+            </div>
+          </div>
+          <button onclick="loadAlertsReviewTable()"
+            class="text-xs text-[#faea73] hover:underline font-semibold flex items-center gap-1">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Reload Alerts
+          </button>
+        </div>
+
+        <!-- Detected Events Review Table -->
+        <div class="bg-[#24252c] rounded-3xl border border-white/5 overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead
+                class="bg-[#1b1c21] text-gray-400 font-semibold uppercase tracking-wider text-[10px] border-b border-white/5">
+                <tr>
+                  <th class="px-4 py-3.5">Evidence Snapshot</th>
+                  <th class="px-4 py-3.5">Notice ID & Timestamp</th>
+                  <th class="px-4 py-3.5">Location</th>
+                  <th class="px-4 py-3.5">Vehicle Type</th>
+                  <th class="px-4 py-3.5">Event Type</th>
+                  <th class="px-4 py-3.5">Number Plate (ANPR)</th>
+                  <th class="px-4 py-3.5">AI Confidence</th>
+                  <th class="px-4 py-3.5">Review Status</th>
+                  <th class="px-4 py-3.5 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="alertsTableBody" class="divide-y divide-white/5 text-gray-300">
+                <tr>
+                  <td colspan="9" class="text-center py-10 text-gray-500">Loading detected events from AI camera feed...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================================== -->
+      <!-- SECTION 4: TRAFFIC AND SAFETY ANALYTICS -->
+      <!-- ============================================================== -->
+      <div id="view-analytics" class="view-section hidden space-y-6">
+
+        <!-- Analytics Header & Time Range Selector -->
+        <div
+          class="bg-[#24252c] p-4 rounded-2xl border border-white/5 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 class="text-sm font-bold text-white">Traffic & Safety Analytics Dashboard</h2>
+            <p class="text-xs text-gray-400">Aggregated insights across computer vision models and citizen reports.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="refreshAnalyticsData()"
+              class="btn-yellow-pill text-xs py-1.5 px-3.5 flex items-center gap-1.5">
+              <i data-lucide="refresh-cw" class="w-3 h-3"></i> Refresh Data
+            </button>
+          </div>
+        </div>
+
+        <!-- 4 Analytics Charts Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+          <!-- Chart 1: Vehicle Counts Over Time -->
+          <div class="bg-[#24252c] p-5 rounded-3xl border border-white/5 space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-sm font-bold text-white">Vehicle Counts Over Time</h3>
+                <p class="text-[11px] text-gray-400">Hourly vehicle flow across monitored camera intersections</p>
+              </div>
+              <span
+                class="text-xs font-mono font-bold text-[#faea73] bg-[#1b1c21] px-2.5 py-1 rounded-full border border-white/5">Hourly
+                Flow</span>
+            </div>
+            <div class="h-64 relative">
+              <canvas id="chartVehicleFlow"></canvas>
+            </div>
+          </div>
+
+          <!-- Chart 2: Violation Counts by Type -->
+          <div class="bg-[#24252c] p-5 rounded-3xl border border-white/5 space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-sm font-bold text-white">Violation Counts by Type</h3>
+                <p class="text-[11px] text-gray-400">Categorical safety violations detected by YOLOv8</p>
+              </div>
+              <span
+                class="text-xs font-mono font-bold text-red-400 bg-red-950/50 px-2.5 py-1 rounded-full border border-red-800/40">Safety
+                Infractions</span>
+            </div>
+            <div class="h-64 relative">
+              <canvas id="chartViolationsByType"></canvas>
+            </div>
+          </div>
+
+          <!-- Chart 3: Busy Locations or Camera Zones -->
+          <div class="bg-[#24252c] p-5 rounded-3xl border border-white/5 space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-sm font-bold text-white">Busy Locations & Camera Zones</h3>
+                <p class="text-[11px] text-gray-400">Total detected traffic volume by junction area</p>
+              </div>
+              <span
+                class="text-xs font-mono font-bold text-gray-300 bg-[#1b1c21] px-2.5 py-1 rounded-full border border-white/5">Zone
+                Ranking</span>
+            </div>
+            <div class="h-64 relative">
+              <canvas id="chartBusyZones"></canvas>
+            </div>
+          </div>
+
+          <!-- Chart 4: Complaint Categories and Trends -->
+          <div class="bg-[#24252c] p-5 rounded-3xl border border-white/5 space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-sm font-bold text-white">Citizen Complaint Categories & Trends</h3>
+                <p class="text-[11px] text-gray-400">Public incident reports mined by NLP pipeline</p>
+              </div>
+              <span
+                class="text-xs font-mono font-bold text-cyan-400 bg-cyan-950/50 px-2.5 py-1 rounded-full border border-cyan-800/40">Community
+                Feedback</span>
+            </div>
+            <div class="h-64 relative">
+              <canvas id="chartComplaintCategories"></canvas>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Vehicle Details & Detected Records Section -->
+        <div id="vehicleRecordsSection" class="bg-[#24252c] p-5 rounded-3xl border border-white/5 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <div class="flex items-center gap-2">
+                <i data-lucide="car" class="w-4 h-4 text-[#faea73]"></i>
+                <h3 class="text-sm font-bold text-white tracking-tight">Detected Vehicle Records & Live Telemetry</h3>
+              </div>
+              <p class="text-xs text-gray-400 mt-0.5">Comprehensive tracking logs, classification breakdowns, and speeds
+                for all monitored vehicles.</p>
+            </div>
+            <!-- Category Filter -->
+            <div class="flex items-center gap-2">
+              <label for="vehicleCategoryFilter" class="text-xs text-gray-400 font-medium">Category:</label>
+              <select id="vehicleCategoryFilter" onchange="filterVehicleRecordsTable()"
+                class="bg-[#1b1c21] text-xs text-white border border-white/10 rounded-xl px-3 py-1.5 focus:border-[#faea73] focus:outline-none">
+                <option value="all">All Vehicle Types</option>
+                <option value="car">Cars</option>
+                <option value="taxi">Taxis</option>
+                <option value="motorcycle">Motorcycles / Bikes</option>
+                <option value="auto_rickshaw">Auto Rickshaws</option>
+                <option value="bus">Buses</option>
+                <option value="truck">Trucks</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Vehicle Classification Summary Strip -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            <div class="bg-[#1b1c21] p-3 rounded-2xl border border-white/5 text-center">
+              <span class="text-[10px] text-gray-400 block">Cars</span>
+              <span id="vrecCars" class="text-lg font-black text-white">0</span>
+            </div>
+            <div class="bg-[#1b1c21] p-3 rounded-2xl border border-white/5 text-center">
+              <span class="text-[10px] text-gray-400 block">Taxis</span>
+              <span id="vrecTaxis" class="text-lg font-black text-[#faea73]">0</span>
+            </div>
+            <div class="bg-[#1b1c21] p-3 rounded-2xl border border-white/5 text-center">
+              <span class="text-[10px] text-gray-400 block">Motorcycles</span>
+              <span id="vrecBikes" class="text-lg font-black text-white">0</span>
+            </div>
+            <div class="bg-[#1b1c21] p-3 rounded-2xl border border-white/5 text-center">
+              <span class="text-[10px] text-gray-400 block">Auto Rickshaws</span>
+              <span id="vrecAutos" class="text-lg font-black text-[#faea73]">0</span>
+            </div>
+            <div class="bg-[#1b1c21] p-3 rounded-2xl border border-white/5 text-center">
+              <span class="text-[10px] text-gray-400 block">Buses</span>
+              <span id="vrecBuses" class="text-lg font-black text-white">0</span>
+            </div>
+            <div class="bg-[#1b1c21] p-3 rounded-2xl border border-white/5 text-center">
+              <span class="text-[10px] text-gray-400 block">Trucks</span>
+              <span id="vrecTrucks" class="text-lg font-black text-white">0</span>
+            </div>
+          </div>
+
+          <!-- Vehicle Records Table -->
+          <div class="overflow-x-auto rounded-2xl border border-white/5 bg-[#1b1c21]">
+            <table class="w-full text-left text-xs">
+              <thead
+                class="bg-[#16171b] text-gray-400 font-semibold uppercase tracking-wider text-[10px] border-b border-white/5">
+                <tr>
+                  <th class="px-4 py-3">Vehicle ID</th>
+                  <th class="px-4 py-3">Classification</th>
+                  <th class="px-4 py-3">Monitored Junction</th>
+                  <th class="px-4 py-3">Est. Speed</th>
+                  <th class="px-4 py-3">Trajectory Track</th>
+                  <th class="px-4 py-3">Tracking State</th>
+                </tr>
+              </thead>
+              <tbody id="vehicleRecordsTableBody" class="divide-y divide-white/5 text-gray-300">
+                <tr>
+                  <td colspan="6" class="text-center py-8 text-gray-500">Loading vehicle detection records...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================================== -->
+      <!-- SECTION 5: ML EVALUATION -->
+      <!-- ============================================================== -->
+      <div id="view-mleval" class="view-section hidden space-y-6">
+
+        <!-- ML Evaluation Top Control Header -->
+        <div
+          class="bg-[#24252c] p-4 rounded-2xl border border-white/5 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-[#faea73]"></span>
+              <h2 class="text-sm font-bold text-white tracking-tight">Machine Learning Model Evaluation & Validation
+              </h2>
+            </div>
+            <p class="text-xs text-gray-400 mt-0.5">Objective evaluation of YOLOv8n object detection against verified
+              ground-truth annotations.</p>
+          </div>
+          <div class="flex items-center gap-2.5 flex-wrap">
+            <div
+              class="flex items-center gap-1.5 bg-[#1b1c21] px-3 py-1.5 rounded-xl border border-white/5 text-xs text-gray-300">
+              <i data-lucide="database" class="w-3.5 h-3.5 text-[#faea73]"></i>
+              <label for="mlDatasetSelect" class="text-gray-400 font-medium">Dataset:</label>
+              <select id="mlDatasetSelect" onchange="onMLDatasetChange(this.value)"
+                class="bg-transparent text-white text-xs font-semibold focus:outline-none cursor-pointer">
+                <option value="traffic" class="bg-[#24252c] text-white">Traffic Validation Dataset (Curated Ground Truth)</option>
+                <option value="coco8" class="bg-[#24252c] text-white">COCO8 Standard Benchmark (Ultralytics)</option>
+                <option value="nlp_complaints" class="bg-[#24252c] text-white">Citizen Complaints Triage Dataset (Bi-LSTM NLP)</option>
+              </select>
+            </div>
+            <button id="mlRefreshBtn" onclick="refreshMLEvaluationUI()"
+              class="btn-yellow-pill text-xs py-1.5 px-3.5 flex items-center gap-1.5 shadow-sm">
+              <i data-lucide="refresh-cw" id="mlRefreshIcon" class="w-3.5 h-3.5"></i>
+              <span id="mlRefreshText">Refresh Evaluation</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Empty / Dataset Required State (Shown when no labelled data) -->
+        <div id="mlDatasetRequiredState"
+          class="hidden bg-[#24252c] p-8 rounded-3xl border border-amber-500/30 text-center space-y-3">
+          <div
+            class="w-12 h-12 mx-auto rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-[#faea73]">
+            <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-base font-bold text-white">Evaluation Dataset Required</h3>
+          <p class="text-xs text-gray-400 max-w-xl mx-auto leading-relaxed">
+            No verified ground-truth labelled dataset was found on the system. To maintain strict scientific and ANPR
+            integrity, evaluation metrics cannot be fabricated or simulated. Please provide a labelled dataset with
+            bounding-box ground truths to compute authentic Precision, Recall, F1, and mAP@0.5 scores.
+          </p>
+          <div class="pt-2">
+            <button onclick="refreshMLEvaluationUI()"
+              class="btn-yellow-pill text-xs py-2 px-4 inline-flex items-center gap-2">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Check Dataset Availability Again
+            </button>
+          </div>
+        </div>
+
+        <!-- Main ML Evaluation Content -->
+        <div id="mlEvaluationContent" class="space-y-6">
+
+          <!-- Section A: Model Information Card -->
+          <div class="bg-[#24252c] p-5 rounded-3xl border border-white/5 space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <i data-lucide="info" class="w-4 h-4 text-[#faea73]"></i>
+                <h3 class="text-sm font-bold text-white tracking-tight">A. Model Information</h3>
+              </div>
+              <span
+                class="text-[11px] font-mono text-emerald-400 bg-emerald-950/40 border border-emerald-800/40 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Evaluated on Active Model
+              </span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-1">
+              <div class="bg-[#1b1c21] p-3.5 rounded-2xl border border-white/5">
+                <span class="text-[11px] text-gray-400 font-medium">Model Name</span>
+                <p id="mlModelName" class="text-sm font-extrabold text-white mt-0.5">YOLOv8n</p>
+                <span class="text-[10px] text-gray-500">Ultralytics Nano Backbone</span>
+              </div>
+              <div class="bg-[#1b1c21] p-3.5 rounded-2xl border border-white/5">
+                <span class="text-[11px] text-gray-400 font-medium">Model Type</span>
+                <p id="mlModelType" class="text-sm font-extrabold text-white mt-0.5">Object Detection</p>
+                <span class="text-[10px] text-gray-500">PyTorch FP32 Deep Learning</span>
+              </div>
+              <div class="bg-[#1b1c21] p-3.5 rounded-2xl border border-white/5">
+                <span class="text-[11px] text-gray-400 font-medium">Validation Dataset</span>
+                <p id="mlDatasetName" class="text-xs font-bold text-white mt-0.5 truncate"
+                  title="Traffic Validation Dataset">Traffic Validation Dataset</p>
+                <span id="mlTestImageCount" class="text-[10px] text-[#faea73]">8 test images (113 instances)</span>
+              </div>
+              <div class="bg-[#1b1c21] p-3.5 rounded-2xl border border-white/5">
+                <span class="text-[11px] text-gray-400 font-medium">Evaluation Date</span>
+                <p id="mlEvalDate" class="text-xs font-mono font-bold text-white mt-0.5">--</p>
+                <span class="text-[10px] text-gray-500">Ultralytics val() Protocol</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section B: Performance Metric Cards -->
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <i data-lucide="gauge" class="w-4 h-4 text-[#faea73]"></i>
+                <h3 class="text-sm font-bold text-white tracking-tight">B. Performance Metric Cards</h3>
+              </div>
+              <span class="text-[11px] text-gray-400 font-mono">IoU Threshold: 0.50</span>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+              <!-- Accuracy -->
+              <div
+                class="bg-[#24252c] p-4 rounded-3xl border border-white/5 hover:border-[#faea73]/30 transition group relative">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-xs text-gray-400 font-medium">Accuracy</span>
+                  <div class="w-6 h-6 rounded-lg bg-[#faea73]/10 flex items-center justify-center text-[#faea73]">
+                    <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
+                  </div>
+                </div>
+                <h4 id="mlMetricAccuracy" class="text-2xl font-black text-white tracking-tight">--</h4>
+                <p class="text-[10px] text-gray-400 mt-1">Matched Detection Accuracy</p>
+                <span class="text-[9px] text-[#faea73] font-mono block mt-0.5">TP / (TP + FP) at matched IoU</span>
+              </div>
+
+              <!-- Precision -->
+              <div
+                class="bg-[#24252c] p-4 rounded-3xl border border-white/5 hover:border-[#faea73]/30 transition group">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-xs text-gray-400 font-medium">Precision</span>
+                  <div class="w-6 h-6 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400">
+                    <i data-lucide="target" class="w-3.5 h-3.5"></i>
+                  </div>
+                </div>
+                <h4 id="mlMetricPrecision" class="text-2xl font-black text-white tracking-tight">--</h4>
+                <p class="text-[10px] text-gray-400 mt-1">Positive Predictive Value</p>
+                <span class="text-[9px] text-blue-400 font-mono block mt-0.5">TP / (TP + FP)</span>
+              </div>
+
+              <!-- Recall -->
+              <div
+                class="bg-[#24252c] p-4 rounded-3xl border border-white/5 hover:border-[#faea73]/30 transition group">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-xs text-gray-400 font-medium">Recall</span>
+                  <div class="w-6 h-6 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400">
+                    <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                  </div>
+                </div>
+                <h4 id="mlMetricRecall" class="text-2xl font-black text-white tracking-tight">--</h4>
+                <p class="text-[10px] text-gray-400 mt-1">True Positive Rate (Sensitivity)</p>
+                <span class="text-[9px] text-purple-400 font-mono block mt-0.5">TP / (TP + FN)</span>
+              </div>
+
+              <!-- F1-Score -->
+              <div
+                class="bg-[#24252c] p-4 rounded-3xl border border-white/5 hover:border-[#faea73]/30 transition group">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-xs text-gray-400 font-medium">F1-Score</span>
+                  <div class="w-6 h-6 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400">
+                    <i data-lucide="git-merge" class="w-3.5 h-3.5"></i>
+                  </div>
+                </div>
+                <h4 id="mlMetricF1" class="text-2xl font-black text-white tracking-tight">--</h4>
+                <p class="text-[10px] text-gray-400 mt-1">Harmonic Mean of P & R</p>
+                <span class="text-[9px] text-amber-400 font-mono block mt-0.5">2 &times; (P &times; R) / (P + R)</span>
+              </div>
+
+              <!-- mAP@0.5 -->
+              <div
+                class="bg-[#24252c] p-4 rounded-3xl border border-white/5 hover:border-[#faea73]/30 transition group">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-xs text-gray-400 font-medium">mAP@0.5</span>
+                  <div class="w-6 h-6 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+                    <i data-lucide="award" class="w-3.5 h-3.5"></i>
+                  </div>
+                </div>
+                <h4 id="mlMetricMAP50" class="text-2xl font-black text-[#faea73] tracking-tight">--</h4>
+                <p class="text-[10px] text-gray-400 mt-1">Mean Average Precision</p>
+                <span class="text-[9px] text-emerald-400 font-mono block mt-0.5">Area under PR curve @ 0.50</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section C: Confusion Matrix Heatmap -->
+          <div class="bg-[#24252c] p-5 rounded-3xl border border-white/5 space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <div class="flex items-center gap-2">
+                  <i data-lucide="grid" class="w-4 h-4 text-[#faea73]"></i>
+                  <h3 class="text-sm font-bold text-white tracking-tight">C. Confusion Matrix Heatmap</h3>
+                </div>
+                <p class="text-xs text-gray-400 mt-0.5">
+                  Actual classes on the Y-axis vs. Predicted classes on the X-axis. Cell values display detection counts
+                  and match intensity.
+                </p>
+              </div>
+
+              <!-- Matrix View Filters -->
+              <div class="flex items-center gap-2">
+                <div class="bg-[#1b1c21] p-1 rounded-xl border border-white/5 flex items-center text-xs">
+                  <button id="cmViewActiveBtn" onclick="toggleConfusionMatrixView('active')"
+                    class="px-2.5 py-1 rounded-lg font-semibold text-white bg-white/10 transition">
+                    Active / Evaluated Classes
+                  </button>
+                  <button id="cmViewAllBtn" onclick="toggleConfusionMatrixView('all')"
+                    class="px-2.5 py-1 rounded-lg font-medium text-gray-400 hover:text-white transition">
+                    All Model Classes
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Heatmap Legend & Explanation -->
+            <div
+              class="flex flex-wrap items-center justify-between gap-3 bg-[#1b1c21] p-3 rounded-2xl border border-white/5 text-[11px] text-gray-400">
+              <div class="flex items-center gap-4 flex-wrap">
+                <span class="flex items-center gap-1.5">
+                  <span class="w-3 h-3 rounded bg-[#faea73] border border-[#faea73]/80 inline-block"></span>
+                  <span class="text-gray-300 font-semibold">Diagonal (True Positives)</span>
+                </span>
+                <span class="flex items-center gap-1.5">
+                  <span class="w-3 h-3 rounded bg-amber-500/20 border border-amber-500/40 inline-block"></span>
+                  <span class="text-gray-300">Off-Diagonal (Class Confusion)</span>
+                </span>
+                <span class="flex items-center gap-1.5">
+                  <span class="w-3 h-3 rounded bg-white/5 border border-white/10 inline-block"></span>
+                  <span class="text-gray-300">Background (False Positives / Missed)</span>
+                </span>
+              </div>
+              <div id="cmAccuracyExplanation" class="font-mono text-[11px] text-[#faea73]">
+                Total Evaluated Detections: <span id="cmTotalDetections">--</span>
+              </div>
+            </div>
+
+            <!-- Heatmap Table Container -->
+            <div class="overflow-x-auto max-h-[500px] rounded-2xl border border-white/5 bg-[#1b1c21]">
+              <div id="confusionMatrixContainer" class="p-3 min-w-[600px]">
+                <div class="py-12 text-center text-gray-400 text-xs">
+                  <i data-lucide="loader-2" class="w-5 h-5 mx-auto animate-spin mb-2 text-[#faea73]"></i>
+                  Loading confusion matrix...
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section D: Model Performance & Latency -->
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <i data-lucide="zap" class="w-4 h-4 text-[#faea73]"></i>
+                <h3 class="text-sm font-bold text-white tracking-tight">D. Model Performance & Edge Viability</h3>
+              </div>
+              <span class="text-[11px] text-gray-400 font-mono">Inference Engine: PyTorch CPU</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <!-- Inference FPS -->
+              <div class="bg-[#24252c] p-4 rounded-3xl border border-white/5 space-y-1">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs text-gray-400 font-medium">Inference FPS</span>
+                  <span
+                    class="text-[10px] text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded-full font-mono">Live</span>
+                </div>
+                <h4 id="mlPerfFPS" class="text-2xl font-black text-white tracking-tight">--</h4>
+                <p class="text-[11px] text-gray-400">Real-Time Throughput</p>
+                <span class="text-[9px] text-gray-500 block">Tested on 12th Gen Intel CPU; ~84+ FPS on Edge GPU</span>
+              </div>
+
+              <!-- Average Latency -->
+              <div class="bg-[#24252c] p-4 rounded-3xl border border-white/5 space-y-1">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs text-gray-400 font-medium">Average Latency</span>
+                  <i data-lucide="clock" class="w-3.5 h-3.5 text-gray-400"></i>
+                </div>
+                <h4 id="mlPerfLatency" class="text-2xl font-black text-white tracking-tight">--</h4>
+                <p class="text-[11px] text-gray-400">Per-Image Execution Time</p>
+                <span id="mlLatencyBreakdown" class="text-[9px] text-[#faea73] font-mono block">Pre: 1.1ms | Infer:
+                  93.0ms | Post: 3.9ms</span>
+              </div>
+
+              <!-- Model Size -->
+              <div class="bg-[#24252c] p-4 rounded-3xl border border-white/5 space-y-1">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs text-gray-400 font-medium">Model Size</span>
+                  <i data-lucide="hard-drive" class="w-3.5 h-3.5 text-gray-400"></i>
+                </div>
+                <h4 id="mlPerfModelSize" class="text-2xl font-black text-white tracking-tight">--</h4>
+                <p class="text-[11px] text-gray-400">Disk & VRAM Footprint</p>
+                <span class="text-[9px] text-gray-500 block">Ideal for Raspberry Pi 5 / Jetson Nano</span>
+              </div>
+
+              <!-- Evaluation Dataset Size -->
+              <div class="bg-[#24252c] p-4 rounded-3xl border border-white/5 space-y-1">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs text-gray-400 font-medium">Dataset Size</span>
+                  <i data-lucide="file-check-2" class="w-3.5 h-3.5 text-gray-400"></i>
+                </div>
+                <h4 id="mlPerfDatasetSize" class="text-lg font-black text-white tracking-tight truncate">--</h4>
+                <p class="text-[11px] text-gray-400">Validation Samples</p>
+                <span class="text-[9px] text-gray-500 block">Annotated ground-truth bounding boxes</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section E: Evaluation Summary -->
+          <div class="bg-[#24252c] p-5 rounded-3xl border border-white/5 space-y-3">
+            <div class="flex items-center gap-2">
+              <i data-lucide="file-text" class="w-4 h-4 text-[#faea73]"></i>
+              <h3 class="text-sm font-bold text-white tracking-tight">E. Evaluation Summary & Insights</h3>
+            </div>
+            <div class="bg-[#1b1c21] p-4 rounded-2xl border border-white/5 space-y-2">
+              <p id="mlSummaryParagraph" class="text-xs text-gray-300 leading-relaxed">
+                Loading model evaluation summary...
+              </p>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2 text-[11px]">
+                <div class="flex items-start gap-2">
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#faea73] mt-1.5 shrink-0"></span>
+                  <span class="text-gray-400"><strong class="text-white">Vehicle Localization:</strong> High IoU
+                    bounding-box overlap ensures correct vehicle crops for e-Challan tickets.</span>
+                </div>
+                <div class="flex items-start gap-2">
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#faea73] mt-1.5 shrink-0"></span>
+                  <span class="text-gray-400"><strong class="text-white">Edge Optimization:</strong> Lightweight 6.2MB
+                    weights suitable for local deployment on Jetson Orin Nano.</span>
+                </div>
+                <div class="flex items-start gap-2">
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#faea73] mt-1.5 shrink-0"></span>
+                  <span class="text-gray-400"><strong class="text-white">Multi-Class Discrimination:</strong> Minimal
+                    cross-class confusion between heavy vehicles and two-wheelers.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ============================================================== -->
+      <!-- SECTION 6: PUBLIC COMPLAINT FORM -->
+      <!-- ============================================================== -->
+      <div id="view-complaints" class="view-section hidden space-y-6">
+
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+
+          <!-- Left Column: Citizen Submission Form (2 cols) -->
+          <div class="lg:col-span-2 bg-[#24252c] p-6 rounded-3xl border border-white/5 space-y-4">
+            <div>
+              <h2 class="text-base font-bold text-white">Submit Public Road Complaint</h2>
+              <p class="text-xs text-gray-400">Report potholes, broken signals, or dangerous driving for AI NLP triage.
+              </p>
+            </div>
+
+            <!-- Quick Preset Chips for Demo -->
+            <div>
+              <span class="text-[11px] text-gray-400 font-semibold block mb-1.5">Quick Demo Presets:</span>
+              <div class="flex flex-wrap gap-1.5">
+                <button onclick="fillComplaintPreset('pothole')"
+                  class="px-2.5 py-1 bg-[#1b1c21] hover:bg-[#2d2e37] text-gray-300 text-[11px] font-semibold rounded-full border border-white/10 transition">Pothole
+                  NH-44</button>
+                <button onclick="fillComplaintPreset('signal')"
+                  class="px-2.5 py-1 bg-[#1b1c21] hover:bg-[#2d2e37] text-gray-300 text-[11px] font-semibold rounded-full border border-white/10 transition">Dead
+                  Signal</button>
+                <button onclick="fillComplaintPreset('ambulance')"
+                  class="px-2.5 py-1 bg-[#1b1c21] hover:bg-[#2d2e37] text-gray-300 text-[11px] font-semibold rounded-full border border-white/10 transition">Ambulance
+                  Jam</button>
+                <button onclick="fillComplaintPreset('parking')"
+                  class="px-2.5 py-1 bg-[#1b1c21] hover:bg-[#2d2e37] text-gray-300 text-[11px] font-semibold rounded-full border border-white/10 transition">Illegal
+                  Parking</button>
+              </div>
+            </div>
+
+            <form id="publicComplaintForm" onsubmit="handleComplaintFormSubmit(event)" class="space-y-3.5 text-xs">
+              <div>
+                <label class="block text-gray-300 font-semibold mb-1">Complaint Category</label>
+                <select id="formComplaintCategory" required
+                  class="w-full bg-[#1b1c21] text-gray-200 border border-gray-700/60 rounded-xl px-3.5 py-2.5 focus:border-[#faea73] focus:outline-none">
+                  <option value="Road Hazards">Road Hazard (Potholes, Cavities)</option>
+                  <option value="Signal Failures">Broken / Stalled Traffic Light</option>
+                  <option value="Emergency Gridlock">Emergency Vehicle Gridlock</option>
+                  <option value="Safety Violations">Reckless Driving / No Helmet</option>
+                  <option value="Congestion">Illegal Parking / Obstruction</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-gray-300 font-semibold mb-1">Location / Intersection</label>
+                <input type="text" id="formComplaintLocation" required placeholder="e.g. NH-44 near Ludhiana Flyover"
+                  class="w-full bg-[#1b1c21] text-gray-200 border border-gray-700/60 rounded-xl px-3.5 py-2.5 focus:border-[#faea73] focus:outline-none">
+              </div>
+
+              <div>
+                <label class="block text-gray-300 font-semibold mb-1">Date & Time</label>
+                <input type="datetime-local" id="formComplaintDateTime" required
+                  class="w-full bg-[#1b1c21] text-gray-200 border border-gray-700/60 rounded-xl px-3.5 py-2.5 focus:border-[#faea73] focus:outline-none">
+              </div>
+
+              <div>
+                <label class="block text-gray-300 font-semibold mb-1">Detailed Description</label>
+                <textarea id="formComplaintDesc" rows="3" required placeholder="Describe what happened or the hazard..."
+                  class="w-full bg-[#1b1c21] text-gray-200 border border-gray-700/60 rounded-xl px-3.5 py-2.5 focus:border-[#faea73] focus:outline-none"></textarea>
+              </div>
+
+              <div>
+                <label class="block text-gray-300 font-semibold mb-1">Optional Photo Evidence</label>
+                <input type="text" id="formComplaintPhoto" placeholder="Optional image URL or filename"
+                  class="w-full bg-[#1b1c21] text-gray-400 border border-gray-700/60 rounded-xl px-3.5 py-2 focus:border-[#faea73] focus:outline-none">
+              </div>
+
+              <button type="submit" class="btn-yellow-pill w-full justify-center py-2.5 text-xs font-bold">
+                <i data-lucide="send" class="w-4 h-4"></i>
+                <span>Submit Complaint</span>
+              </button>
+            </form>
+          </div>
+
+          <!-- Right Column: Complaints List & Lifecycle Management (3 cols) -->
+          <div
+            class="lg:col-span-3 bg-[#24252c] p-6 rounded-3xl border border-white/5 space-y-4 flex flex-col justify-between">
+            <div>
+              <div class="flex flex-wrap items-center justify-between gap-3 mb-2">
+                <div>
+                  <h2 class="text-base font-bold text-white">Community Grievance Registry</h2>
+                  <p class="text-xs text-gray-400">Classified by Bi-LSTM & BERT NLP Urgency Triage.</p>
+                </div>
+
+                <!-- Status Filter Pills -->
+                <div class="flex items-center gap-1.5 text-xs">
+                  <button onclick="filterComplaintsByStatus('ALL')"
+                    class="complaint-filter-pill active px-3 py-1 rounded-full bg-[#faea73] text-[#191a1f] font-bold"
+                    id="cTabAll">All</button>
+                  <button onclick="filterComplaintsByStatus('Submitted')"
+                    class="complaint-filter-pill px-3 py-1 rounded-full bg-[#1b1c21] text-gray-300 hover:text-white"
+                    id="cTabSubmitted">Submitted</button>
+                  <button onclick="filterComplaintsByStatus('Under review')"
+                    class="complaint-filter-pill px-3 py-1 rounded-full bg-[#1b1c21] text-gray-300 hover:text-white"
+                    id="cTabReview">Under review</button>
+                  <button onclick="filterComplaintsByStatus('Resolved')"
+                    class="complaint-filter-pill px-3 py-1 rounded-full bg-[#1b1c21] text-gray-300 hover:text-white"
+                    id="cTabResolved">Resolved</button>
+                </div>
+              </div>
+
+              <!-- Complaints List Container -->
+              <div id="complaintsListContainer" class="space-y-2.5 max-h-[500px] overflow-y-auto pr-1">
+                <div class="text-center py-10 text-gray-500 text-xs">Loading citizen reports...</div>
+              </div>
+            </div>
+
+            <!-- Footer note on student prototype -->
+            <div class="pt-3 border-t border-white/5 text-[11px] text-gray-500 flex items-center justify-between">
+              <span>* Academic prototype: Sample reports are simulated for demonstration.</span>
+              <button onclick="loadComplaintsRegistry()"
+                class="text-[#faea73] font-semibold hover:underline">Reload</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ============================================================== -->
+      <!-- SECTION 7: SETTINGS AND PROJECT INFORMATION -->
+      <!-- ============================================================== -->
+      <div id="view-settings" class="view-section hidden space-y-6">
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+          <!-- Left Card: Detection & Video Controls -->
+          <div class="bg-[#24252c] p-6 rounded-3xl border border-white/5 space-y-5 text-xs">
+            <div>
+              <h2 class="text-base font-bold text-white">Detection & Camera Settings</h2>
+              <p class="text-xs text-gray-400">Configure computer vision parameters and active safety alert triggers.
+              </p>
+            </div>
+
+            <!-- Video / Camera Selector -->
+            <div class="space-y-1.5">
+              <label class="block text-gray-300 font-semibold">Active Camera Source</label>
+              <select id="settingsCameraSource" onchange="changeCameraSource(this.value)"
+                class="w-full bg-[#1b1c21] text-gray-200 border border-gray-700/60 rounded-xl px-3.5 py-2.5 focus:border-[#faea73] focus:outline-none">
+                <option value="demo">Recorded Demo Video (Sector 14 Smart Junction)</option>
+                <option value="nh44">Recorded Video (NH-44 Highway Corridor)</option>
+                <option value="custom">Uploaded Custom Video / Test Frame</option>
+              </select>
+            </div>
+
+            <!-- Choosing which detections to show -->
+            <div class="space-y-2 pt-2 border-t border-white/5">
+              <span class="block text-gray-300 font-semibold mb-1">Choose Which Detections to Show:</span>
+              <div class="space-y-2">
+                <label class="flex items-center gap-2.5 cursor-pointer">
+                  <input type="checkbox" id="toggleVehicles" checked
+                    class="rounded border-gray-700 text-[#faea73] focus:ring-0">
+                  <span class="text-gray-300">Vehicles (Car, Motorcycle, Bus, Truck)</span>
+                </label>
+                <label class="flex items-center gap-2.5 cursor-pointer">
+                  <input type="checkbox" id="togglePedestrians" checked
+                    class="rounded border-gray-700 text-[#faea73] focus:ring-0">
+                  <span class="text-gray-300">Pedestrians on Crosswalk</span>
+                </label>
+                <label class="flex items-center gap-2.5 cursor-pointer">
+                  <input type="checkbox" id="toggleHelmet" checked
+                    class="rounded border-gray-700 text-[#faea73] focus:ring-0">
+                  <span class="text-gray-300">Rider Helmet Detection (With Helmet / No Helmet)</span>
+                </label>
+                <label class="flex items-center gap-2.5 cursor-pointer">
+                  <input type="checkbox" id="toggleSeatbelt" checked
+                    class="rounded border-gray-700 text-[#faea73] focus:ring-0">
+                  <span class="text-gray-300">Driver Seatbelt Detection (Seatbelt On / No Seatbelt)</span>
+                </label>
+                <label class="flex items-center gap-2.5 cursor-pointer">
+                  <input type="checkbox" id="toggleStopLine" checked
+                    class="rounded border-gray-700 text-[#faea73] focus:ring-0">
+                  <span class="text-gray-300">Virtual Stop-Line & Red-Light Crossing Rule</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Alert Sensitivity Slider -->
+            <div class="space-y-2 pt-2 border-t border-white/5">
+              <div class="flex items-center justify-between">
+                <span class="text-gray-300 font-semibold">Alert Sensitivity Threshold:</span>
+                <span id="sliderValueDisplay" class="font-mono text-[#faea73] font-bold">0.35</span>
+              </div>
+              <input type="range" min="0.20" max="0.85" step="0.05" value="0.35" oninput="updateSensitivity(this.value)"
+                class="w-full accent-[#faea73] cursor-pointer">
+              <div class="flex justify-between text-[10px] text-gray-500 font-mono">
+                <span>0.20 (High Recall / More Alerts)</span>
+                <span>0.85 (High Precision / Fewer Alerts)</span>
+              </div>
+            </div>
+
+            <!-- Syllabus Feature Testers -->
+            <div class="pt-2 border-t border-white/5 space-y-2.5">
+              <span class="block text-gray-300 font-semibold">Applied AI Syllabus Demonstrators:</span>
+              <div class="flex flex-wrap gap-2">
+                <button onclick="testCVBasics()"
+                  class="btn-yellow-pill text-[11px] py-1.5 px-3">Test CV Basics (Sobel/Canny/ORB)</button>
+                <button onclick="testNLPBasics()"
+                  class="px-3 py-1.5 bg-[#1b1c21] hover:bg-[#2d2e37] text-gray-300 text-[11px] font-semibold rounded-full border border-white/10">Test
+                  NLP (BoW/TF-IDF)</button>
+                <button onclick="testEmergencyClassification('ambulance')"
+                  class="px-3 py-1.5 bg-[#1b1c21] hover:bg-[#2d2e37] text-gray-300 text-[11px] font-semibold rounded-full border border-white/10">Test
+                  Ambulance (ViT)</button>
+                <button onclick="testRoadHazardClassification('pothole')"
+                  class="px-3 py-1.5 bg-[#1b1c21] hover:bg-[#2d2e37] text-gray-300 text-[11px] font-semibold rounded-full border border-white/10">Test
+                  Pothole</button>
+                <button onclick="triggerAuditReportGeneration()"
+                  class="px-3 py-1.5 bg-[#1b1c21] hover:bg-[#2d2e37] text-[#faea73] text-[11px] font-semibold rounded-full border border-[#faea73]/30">Generate
+                  Safety Audit</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Card: Applied AI Syllabus Mapping & Project Architecture -->
+          <div class="bg-[#24252c] p-6 rounded-3xl border border-white/5 space-y-4 text-xs">
+            <div class="flex items-center justify-between">
+              <div>
+                <h2 class="text-base font-bold text-white">Applied AI Syllabus Alignment</h2>
+                <p class="text-xs text-gray-400">Strict mapping to course topics & viva presentation guide.</p>
+              </div>
+              <span class="text-[10px] font-mono text-[#faea73] bg-[#faea73]/10 border border-[#faea73]/30 px-2 py-0.5 rounded-full">Units 1 - 7</span>
+            </div>
+
+            <div class="bg-[#1b1c21] p-4 rounded-2xl border border-white/5 space-y-3 text-gray-300 leading-relaxed max-h-[460px] overflow-y-auto pr-2">
+              <div class="space-y-1 border-b border-white/5 pb-2.5">
+                <h4 class="font-bold text-[#faea73] text-xs">1. Introduction to Applied AI</h4>
+                <p class="text-[11px] text-gray-400">
+                  <strong>Traditional AI vs Applied AI:</strong> Traditional AI relies on brittle heuristic if-then logic and fixed induction loops that fail in rain, night glare, and dense traffic. Applied AI uses empirical data-driven machine learning, deep neural representations, and multi-modal perception (CV + NLP + DL) to automate traffic violation citation and incident triage.
+                </p>
+              </div>
+
+              <div class="space-y-1 border-b border-white/5 pb-2.5">
+                <h4 class="font-bold text-[#faea73] text-xs">2. Computer Vision Basics</h4>
+                <p class="text-[11px] text-gray-400">
+                  <strong>Preprocessing & Filtering:</strong> Digital images represented as 3D BGR tensors. Preprocessed with CLAHE (LAB space L-channel equalization) to eliminate headlight glare, Gaussian Blur for sensor denoising, and Bilateral filtering for edge-preserving smoothing. Edge detection compares Sobel directional gradients with Canny multi-stage hysteresis. Feature extraction implements ORB, SIFT, and comparative SURF analysis, benchmarked against classical Haar Cascade detectors.
+                </p>
+              </div>
+
+              <div class="space-y-1 border-b border-white/5 pb-2.5">
+                <h4 class="font-bold text-[#faea73] text-xs">3. Deep Learning for Vision</h4>
+                <p class="text-[11px] text-gray-400">
+                  <strong>CNNs, YOLO & Vision Transformers:</strong> Multi-class vehicle detection (Car, Motorcycle, Bus, Truck, Auto Rickshaw) uses YOLOv8 anchor-free CSPDarknet + PAN-FPN. Single Shot MultiBox Detector (SSD) benchmarked for architectural comparison. Transfer learning leverages MobileNetV3 (CNN) vs ViT (Vision Transformer with patch self-attention) for emergency vehicle green-corridor priority.
+                </p>
+              </div>
+
+              <div class="space-y-1 border-b border-white/5 pb-2.5">
+                <h4 class="font-bold text-[#faea73] text-xs">4. Natural Language Processing Fundamentals</h4>
+                <p class="text-[11px] text-gray-400">
+                  <strong>Linguistic Preprocessing:</strong> Tokenization, stop-word removal, stemming (Porter) vs lemmatization, and POS tagging on citizen traffic grievances. Named Entity Recognition (NER) extracts locations (NH-44, sectors), vehicles, and road hazards. Bag of Words (CountVectorizer) and TF-IDF matrices compared against Word2Vec/GloVe and dense vector embeddings for semantic blackspot search.
+                </p>
+              </div>
+
+              <div class="space-y-1 border-b border-white/5 pb-2.5">
+                <h4 class="font-bold text-[#faea73] text-xs">5. NLP Using Deep Learning</h4>
+                <p class="text-[11px] text-gray-400">
+                  <strong>Recurrent Models vs Transformers:</strong> PyTorch 2-layer Bidirectional LSTM (Bi-LSTM) triages public complaints into CRITICAL, MODERATE, and LOW urgency tiers. Solves vanishing gradients of vanilla RNNs via memory cell gates (Forget, Input, Output), benchmarked against Fine-Tuned BERT with multi-head self-attention.
+                </p>
+              </div>
+
+              <div class="space-y-1 border-b border-white/5 pb-2.5">
+                <h4 class="font-bold text-[#faea73] text-xs">6. Integrated Applications & Edge AI</h4>
+                <p class="text-[11px] text-gray-400">
+                  <strong>Traffic Cameras as Edge AI Devices:</strong> Local camera inference (NVIDIA Jetson / Raspberry Pi) reduces upstream network bandwidth by 99.8% (streaming 2 KB violation JSON vs 25 Mbps raw 1080p stream), eliminates cloud transmission latency (<30 ms response for signal preemption), preserves citizen privacy, and ensures offline operational autonomy.
+                </p>
+              </div>
+
+              <div class="space-y-1">
+                <h4 class="font-bold text-[#faea73] text-xs">7. Project Evaluation & Viva Readiness</h4>
+                <p class="text-[11px] text-gray-400">
+                  <strong>Authentic Metrics:</strong> Tested strictly on verified ground-truth labelled datasets (no fabricated numbers). YOLOv8 evaluated via Ultralytics protocol on traffic images (Precision, Recall, F1, mAP@0.5, Confusion Matrix). NLP urgency classifier evaluated on 40 labelled complaint records (Accuracy: 82.5%, F1: 82.6%).
+                </p>
+              </div>
+            </div>
+
+            <div class="bg-[#1b1c21] p-3.5 rounded-2xl border border-white/5 text-[11px] text-gray-400 space-y-1">
+              <div><strong>Backend Stack:</strong> FastAPI + PyTorch + OpenCV + Uvicorn (Port 8000)</div>
+              <div><strong>Core Models:</strong> YOLOv8n (Vision) | PyTorch Bi-LSTM (NLP) | MobileNetV3 vs ViT (Clf)</div>
+              <div><strong>Tracking:</strong> Centroid Euclidean Multi-Object Tracker (Session Idempotent)</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Printable e-Challan Ticket Modal -->
+  <div id="ticketModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-xl items-center justify-center p-4">
+    <div
+      class="modal-content-animated bg-[#1e1f26]/95 border border-white/10 rounded-3xl max-w-md w-full p-6 shadow-2xl relative space-y-4">
+      <button onclick="closeTicketModal()"
+        class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl cursor-pointer">&times;</button>
+
+      <div id="printableTicket" class="space-y-3 font-mono text-xs">
+        <div class="border-b border-gray-700/60 pb-3 text-center">
+          <h2 class="text-sm font-bold text-white uppercase tracking-wider">State Traffic Enforcement Authority</h2>
+          <p class="text-gray-400 text-[11px]">Automated Intelligent e-Challan Violation Notice</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 my-3">
+          <div class="space-y-1">
+            <span class="text-[10px] text-gray-400 block font-semibold">Vehicle Evidence:</span>
+            <div id="ticketVehicleImgContainer"
+              class="w-full h-32 rounded-xl border border-red-800/80 shadow overflow-hidden bg-black/60 relative flex items-center justify-center">
+              <img id="ticketImage" class="w-full h-full object-cover" alt="Vehicle Evidence">
+              <div id="ticketVehicleFallback"
+                class="hidden flex-col items-center justify-center gap-1 p-2 text-center text-gray-400">
+                <i data-lucide="image-off" class="w-6 h-6 text-gray-500"></i>
+                <span class="text-[10px] font-semibold">Evidence Image Unavailable</span>
+              </div>
+            </div>
+          </div>
+          <div class="space-y-1">
+            <span class="text-[10px] text-gray-400 block font-semibold">Number Plate Crop (ANPR):</span>
+            <div id="ticketPlateImgContainer"
+              class="w-full h-32 rounded-xl border border-[#faea73]/60 shadow overflow-hidden bg-black/70 relative flex items-center justify-center">
+              <img id="ticketPlateImage" class="w-full h-full object-contain p-1" alt="Number Plate Crop">
+              <div id="ticketPlateFallback"
+                class="hidden flex-col items-center justify-center gap-1.5 p-3 text-center text-gray-400">
+                <i data-lucide="scan-line" class="w-6 h-6 text-amber-400/80"></i>
+                <span class="text-[11px] font-bold text-gray-300">Number Plate Not Detected</span>
+                <span class="text-[9px] text-gray-500">No plate region resolved in crop</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-[#1b1c21] p-3 rounded-2xl border border-white/5 space-y-1.5 text-[11px]">
+          <div class="flex justify-between"><span class="text-gray-400">Notice ID:</span><span id="ticketNumber"
+              class="font-bold text-white">--</span></div>
+          <div class="flex justify-between"><span class="text-gray-400">Session ID:</span><span id="ticketSessionId"
+              class="font-mono text-gray-300">--</span></div>
+          <div class="flex justify-between"><span class="text-gray-400">Vehicle Track ID:</span><span id="ticketTrackId"
+              class="font-mono text-[#faea73] font-bold">--</span></div>
+          <div class="flex justify-between"><span class="text-gray-400">Registration Plate:</span><span
+              id="ticketNumberPlate" class="font-mono font-bold text-[#faea73]">--</span></div>
+          <div class="flex justify-between"><span class="text-gray-400">ANPR OCR Score:</span><span
+              id="ticketOcrConfidence" class="font-mono text-emerald-400">--</span></div>
+          <div class="flex justify-between"><span class="text-gray-400">Vehicle Category:</span><span id="ticketVehicle"
+              class="font-bold text-white capitalize">--</span></div>
+          <div class="flex justify-between"><span class="text-gray-400">Violation:</span><span id="ticketOffense"
+              class="font-bold text-red-400">--</span></div>
+          <div class="flex justify-between"><span class="text-gray-400">Timestamp:</span><span id="ticketTimestamp"
+              class="text-gray-200">--</span></div>
+          <div class="flex justify-between"><span class="text-gray-400">Location:</span><span id="ticketLocation"
+              class="text-gray-200">--</span></div>
+          <div class="flex justify-between"><span class="text-gray-400">Review Status:</span><span id="ticketStatus"
+              class="font-bold text-[#faea73]">Needs review</span></div>
+          <div class="flex justify-between border-t border-gray-800 pt-1.5 font-bold"><span
+              class="text-gray-300">Penalty Fine:</span><span id="ticketFine" class="text-[#faea73] text-sm">Pending
+              Review</span></div>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="closeTicketModal()"
+          class="px-4 py-2 bg-[#1b1c21] hover:bg-[#2d2e37] text-gray-300 rounded-full text-xs font-semibold cursor-pointer">Close</button>
+        <button onclick="printChallanTicket()"
+          class="btn-yellow-pill text-xs py-2 px-4 cursor-pointer hover:scale-105 transition">
+          <i data-lucide="printer" class="w-3.5 h-3.5 inline"></i> Print Official Ticket
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/app.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,1230 @@
+/* ==========================================================================
+   TrafficAI - Apple Design System
+   Crafted following Apple's WWDC Fluid Interfaces & Emil Kowalski's guidelines:
+   - 1:1 Instant Response (Kill Latency & Tactile :active Press)
+   - Translucent Glass Materials & Specular Edge Lighting
+   - SF Pro Optical Sizing, Negative Tracking & Strict Typographic Hierarchy
+   - Velocity-aware Spring Dynamics (cubic-bezier(0.16, 1, 0.3, 1))
+   - macOS / visionOS Layered Depth & Vibrancy
+   - Accessible Fallbacks for Reduced Motion & Transparency
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Apple System Palette (Dark Vibrant) */
+  --bg-viewport: #0c0d10;
+  --bg-container: rgba(22, 23, 27, 0.88);
+  --bg-sidebar: rgba(18, 19, 23, 0.94);
+  --bg-glass-card: rgba(30, 31, 38, 0.65);
+  --bg-glass-card-hover: rgba(38, 40, 48, 0.78);
+  --bg-glass-highlight: rgba(255, 255, 255, 0.05);
+
+  /* Card Surfaces */
+  --bg-card-dark: rgba(30, 31, 38, 0.68);
+  --bg-card-darker: rgba(20, 21, 26, 0.85);
+  --bg-card-yellow: #f8e559;
+  --bg-card-white: rgba(255, 255, 255, 0.96);
+
+  /* Apple System Accent Hues */
+  --apple-amber: #ffd60a;
+  --apple-amber-hover: #ffdf33;
+  --apple-blue: #0a84ff;
+  --apple-green: #30d158;
+  --apple-red: #ff453a;
+  --apple-orange: #ff9f0a;
+  --apple-indigo: #5e5ce6;
+  --accent-yellow: #ffd60a;
+  --accent-yellow-hover: #ffe14d;
+
+  /* Typography Colors */
+  --text-dark: #121316;
+  --text-light: #f5f5f7;
+  --text-muted: #86868b;
+  --text-secondary: #a1a1a6;
+
+  /* Specular & Glass Borders */
+  --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+  --specular-top: 1px solid rgba(255, 255, 255, 0.16);
+  --glass-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  --glass-shadow-elevated: 0 24px 60px -16px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.1);
+
+  /* Global Tooltip Theme Tokens (Dark Mode Default) */
+  --tooltip-bg: rgba(22, 23, 28, 0.96);
+  --tooltip-text: #f5f5f7;
+  --tooltip-border: rgba(255, 255, 255, 0.14);
+  --tooltip-shadow: 0 10px 28px -4px rgba(0, 0, 0, 0.65), 0 2px 8px rgba(0, 0, 0, 0.4);
+  --tooltip-arrow: #16171c;
+
+  /* Apple Spring Timing Curve */
+  --spring-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --spring-quick: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --spring-bounce: cubic-bezier(0.175, 0.885, 0.32, 1.15);
+}
+
+/* Base Reset & Smoothness */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Plus Jakarta Sans", system-ui, sans-serif;
+  background-color: var(--bg-viewport);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(10, 132, 255, 0.12), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 90% 90%, rgba(255, 214, 10, 0.05), transparent 60%);
+  color: var(--text-light);
+  margin: 0;
+  padding: 20px;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-x: hidden;
+  letter-spacing: -0.01em;
+}
+
+/* ==========================================================================
+   Principle 1: Instant Response (Kill Latency)
+   Tactile micro-compression on :active for all interactive controls
+   ========================================================================== */
+button,
+.btn-yellow-pill,
+.btn-frosted-pill,
+.btn-circle-action,
+.bento-nav-item,
+.calendar-pill,
+.complaint-filter-pill,
+.theme-switch-slider {
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+button:active,
+.btn-yellow-pill:active,
+.btn-frosted-pill:active,
+.btn-circle-action:active,
+.calendar-pill:active,
+.complaint-filter-pill:active {
+  transform: scale(0.965) !important;
+  transition: transform 90ms var(--spring-quick) !important;
+}
+
+.bento-nav-item:active {
+  transform: scale(0.978) !important;
+  transition: transform 90ms var(--spring-quick) !important;
+}
+
+/* ==========================================================================
+   Master Floating Container (macOS Glass Window Canvas)
+   ========================================================================== */
+.bento-app-container {
+  background-color: var(--bg-container);
+  backdrop-filter: blur(50px) saturate(190%);
+  -webkit-backdrop-filter: blur(50px) saturate(190%);
+  border-radius: 36px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 40px 100px -20px rgba(0, 0, 0, 0.85),
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    inset 0 1px 1px rgba(255, 255, 255, 0.15);
+  width: 100%;
+  max-width: 1400px;
+  min-height: 860px;
+  display: flex;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ==========================================================================
+   macOS Window Control Dots
+   ========================================================================== */
+.macos-window-dots {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 24px;
+}
+
+.macos-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 9999px;
+  transition: opacity 0.2s ease, transform 0.15s ease;
+}
+
+.macos-dot:hover {
+  transform: scale(1.1);
+}
+
+.macos-dot-close {
+  background-color: #ff5f56;
+  border: 0.5px solid #e0443e;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25);
+}
+
+.macos-dot-min {
+  background-color: #ffbd2e;
+  border: 0.5px solid #dea123;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25);
+}
+
+.macos-dot-max {
+  background-color: #27c93f;
+  border: 0.5px solid #1aab29;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25);
+}
+
+/* ==========================================================================
+   Left Sidebar - Structural Glass
+   ========================================================================== */
+.bento-sidebar {
+  width: 255px;
+  background-color: var(--bg-sidebar);
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 28px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex-shrink: 0;
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+}
+
+/* Brand Capsule */
+.brand-capsule {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 10px;
+  margin-bottom: 24px;
+}
+
+.brand-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #ffd60a 0%, #ff9f0a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1a1a1f;
+  box-shadow: 0 4px 14px rgba(255, 214, 10, 0.35);
+}
+
+/* Officer Card with Glass Elevation */
+.officer-glass-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: var(--specular-top);
+  border-radius: 20px;
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 24px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* Nav Items - Apple Spring Navigation */
+.bento-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 16px;
+  border-radius: 14px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  transition: all 0.24s var(--spring-ease);
+  position: relative;
+  overflow: hidden;
+}
+
+.bento-nav-item:hover {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.06);
+  transform: translateX(2px);
+}
+
+.bento-nav-item.active {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.25),
+    inset 0 1px 1px rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.bento-nav-item.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 25%;
+  bottom: 25%;
+  width: 3.5px;
+  border-radius: 0 4px 4px 0;
+  background-color: var(--apple-amber);
+  box-shadow: 0 0 10px var(--apple-amber);
+}
+
+/* Apple Pill Theme Switch */
+.theme-switch-capsule {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 9999px;
+  padding: 5px 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.theme-switch-slider {
+  width: 36px;
+  height: 20px;
+  background-color: rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+  position: relative;
+  transition: background-color 0.25s var(--spring-ease);
+}
+
+.theme-switch-thumb {
+  position: absolute;
+  right: 2px;
+  top: 2px;
+  width: 16px;
+  height: 16px;
+  background: linear-gradient(180deg, #ffffff 0%, #ffd60a 100%);
+  border-radius: 9999px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  transition: transform 0.25s var(--spring-ease);
+}
+
+/* ==========================================================================
+   Main Canvas & Top Header
+   ========================================================================== */
+.bento-main {
+  flex: 1;
+  padding: 32px 36px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  max-height: 90vh;
+  position: relative;
+}
+
+.bento-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  gap: 16px;
+}
+
+#pageHeading {
+  font-size: 1.55rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: #ffffff;
+  line-height: 1.15;
+}
+
+/* Apple Frosted Search Pill */
+.bento-search-pill-container {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 9999px;
+  padding: 0 16px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+  transition: all 0.24s var(--spring-ease);
+}
+
+.bento-search-pill-container:focus-within {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(10, 132, 255, 0.6);
+  box-shadow:
+    0 0 0 3px rgba(10, 132, 255, 0.25),
+    inset 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.bento-search-pill {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 13px;
+  padding: 8px 12px;
+  width: 270px;
+  letter-spacing: -0.01em;
+}
+
+.bento-search-pill::placeholder {
+  color: #7c7c82;
+}
+
+.bento-search-pill:focus {
+  outline: none;
+}
+
+/* Apple Primary Action Button */
+.btn-yellow-pill {
+  background: linear-gradient(180deg, var(--apple-amber) 0%, #f0c500 100%);
+  color: var(--text-dark);
+  font-weight: 600;
+  font-size: 12.5px;
+  letter-spacing: -0.01em;
+  padding: 9px 20px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  box-shadow:
+    0 4px 16px rgba(255, 214, 10, 0.3),
+    inset 0 1px 1px rgba(255, 255, 255, 0.4);
+  transition: all 0.22s var(--spring-ease);
+}
+
+.btn-yellow-pill:hover {
+  background: linear-gradient(180deg, var(--apple-amber-hover) 0%, #ffd60a 100%);
+  transform: translateY(-1px);
+  box-shadow:
+    0 8px 24px rgba(255, 214, 10, 0.42),
+    inset 0 1px 1px rgba(255, 255, 255, 0.5);
+}
+
+/* Circle Action Buttons (Bell, Icons) */
+.btn-circle-action {
+  width: 38px;
+  height: 38px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.22s var(--spring-ease);
+}
+
+.btn-circle-action:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+/* ==========================================================================
+   Bento Grid & Glass Surfaces
+   ========================================================================== */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 1024px) {
+  .bento-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Base Bento Card Style */
+.card-bento-dark,
+.card-bento-pattern,
+.card-bento-chart,
+.card-bento-media {
+  background: var(--bg-card-dark);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-radius: 26px;
+  padding: 24px;
+  min-height: 250px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: var(--glass-border);
+  border-top: var(--specular-top);
+  box-shadow: var(--glass-shadow);
+  transition: transform 0.26s var(--spring-ease), box-shadow 0.26s var(--spring-ease), border-color 0.26s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.card-bento-dark:hover,
+.card-bento-pattern:hover,
+.card-bento-chart:hover,
+.card-bento-media:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--glass-shadow-elevated);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+/* Specific Card 1: Apple Amber Card */
+.card-bento-yellow {
+  background: linear-gradient(135deg, #ffd60a 0%, #f5c518 100%);
+  color: var(--text-dark);
+  border-radius: 26px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 250px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow:
+    0 16px 36px -10px rgba(255, 214, 10, 0.4),
+    inset 0 1px 2px rgba(255, 255, 255, 0.5);
+  transition: transform 0.26s var(--spring-ease), box-shadow 0.26s var(--spring-ease);
+}
+
+.card-bento-yellow:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 24px 48px -12px rgba(255, 214, 10, 0.5),
+    inset 0 1px 2px rgba(255, 255, 255, 0.6);
+}
+
+/* Specific Card 2: Subtle Geometric Pattern */
+.card-bento-pattern {
+  background-image: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.035) 1.2px, transparent 1.2px);
+  background-size: 18px 18px;
+}
+
+/* Specific Card 3: Crisp Ceramic White Card */
+.card-bento-white {
+  background: var(--bg-card-white);
+  color: var(--text-dark);
+  border-radius: 26px;
+  padding: 24px;
+  min-height: 250px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow:
+    0 20px 45px -12px rgba(0, 0, 0, 0.35),
+    inset 0 1px 1px rgba(255, 255, 255, 1);
+  transition: transform 0.26s var(--spring-ease), box-shadow 0.26s var(--spring-ease);
+}
+
+.card-bento-white:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 28px 56px -14px rgba(0, 0, 0, 0.42);
+}
+
+/* Frosted Interactive Pills */
+.btn-frosted-pill {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.22s var(--spring-ease);
+}
+
+.btn-frosted-pill:hover {
+  background: rgba(255, 255, 255, 0.14);
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+/* Calendar Date Pills */
+.calendar-pill {
+  border-radius: 14px;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 11px;
+  transition: all 0.22s var(--spring-ease);
+  background: rgba(255, 255, 255, 0.05);
+  color: #8e8e93;
+  font-weight: 500;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.calendar-pill.active {
+  background: linear-gradient(180deg, var(--apple-amber) 0%, #f0c500 100%);
+  color: var(--text-dark);
+  font-weight: 700;
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 14px rgba(255, 214, 10, 0.35);
+}
+
+/* Apple Segmented Filter Pill */
+.complaint-filter-pill {
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #a1a1a6;
+  background: transparent;
+  transition: all 0.22s var(--spring-ease);
+}
+
+.complaint-filter-pill:hover {
+  color: #ffffff;
+}
+
+.complaint-filter-pill.active {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.3),
+    inset 0 1px 1px rgba(255, 255, 255, 0.18);
+}
+
+/* Diagonal Yellow Hatch Bar in Chart */
+.bar-yellow-hatched {
+  background: repeating-linear-gradient(45deg,
+      var(--apple-amber),
+      var(--apple-amber) 4px,
+      #ebd953 4px,
+      #ebd953 8px);
+  border-radius: 8px;
+}
+
+/* ==========================================================================
+   Fluid Apple View Transitions (Spring Cross-Fade)
+   ========================================================================== */
+@keyframes appleViewEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.995);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.view-section {
+  animation: appleViewEnter 0.32s var(--spring-ease) forwards;
+}
+
+/* Modal Spring Dialog Animation */
+@keyframes appleModalEnter {
+  0% {
+    opacity: 0;
+    transform: scale(0.93) translateY(14px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.modal-content-animated {
+  animation: appleModalEnter 0.3s var(--spring-bounce) forwards;
+}
+
+/* Apple Glowing Live Indicator */
+.apple-live-indicator {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.apple-live-indicator::before {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 9999px;
+  background: inherit;
+  animation: applePulse 2s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+  opacity: 0.6;
+}
+
+@keyframes applePulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.7;
+  }
+
+  70% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+/* Apple Smooth Range Slider */
+input[type="range"] {
+  -webkit-appearance: none;
+  background: rgba(255, 255, 255, 0.1);
+  height: 6px;
+  border-radius: 9999px;
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35), 0 0 1px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: transform 0.15s var(--spring-quick);
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+input[type="range"]::-webkit-slider-thumb:active {
+  transform: scale(1.22);
+  background: var(--apple-amber);
+}
+
+/* Refined Apple Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Tables */
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+}
+
+th,
+td {
+  text-align: left;
+}
+
+/* ==========================================================================
+   Apple Light Theme System (macOS Platinum / Monterey / Sequoia Light)
+   ========================================================================== */
+[data-theme="light"] {
+  --bg-viewport: #eaf0f6;
+  --bg-container: rgba(255, 255, 255, 0.88);
+  --bg-sidebar: rgba(246, 248, 252, 0.95);
+  --bg-glass-card: rgba(255, 255, 255, 0.78);
+  --bg-glass-card-hover: rgba(255, 255, 255, 0.92);
+  --bg-card-dark: #ffffff;
+  --bg-card-darker: #f5f7fa;
+  --text-dark: #1d1d1f;
+  --text-light: #1d1d1f;
+  --text-muted: #6e6e73;
+  --text-secondary: #48484a;
+  --glass-border: 1px solid rgba(0, 0, 0, 0.08);
+  --specular-top: 1px solid rgba(255, 255, 255, 0.9);
+  --glass-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  --glass-shadow-elevated: 0 20px 48px -12px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.08);
+
+  /* Global Tooltip Theme Tokens (Light Mode High-Contrast) */
+  --tooltip-bg: #ffffff;
+  --tooltip-text: #1d1d1f;
+  --tooltip-border: rgba(0, 0, 0, 0.14);
+  --tooltip-shadow: 0 10px 28px -4px rgba(0, 0, 0, 0.14), 0 2px 8px rgba(0, 0, 0, 0.08);
+  --tooltip-arrow: #ffffff;
+}
+
+[data-theme="light"] body {
+  background-color: var(--bg-viewport);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(10, 132, 255, 0.1), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 90% 90%, rgba(255, 214, 10, 0.06), transparent 60%);
+  color: #1d1d1f;
+}
+
+[data-theme="light"] .bento-app-container {
+  background-color: var(--bg-container);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow:
+    0 30px 80px -20px rgba(0, 0, 0, 0.12),
+    0 0 0 1px rgba(0, 0, 0, 0.05),
+    inset 0 1px 1px rgba(255, 255, 255, 0.9);
+}
+
+[data-theme="light"] .bento-sidebar {
+  background-color: var(--bg-sidebar);
+  border-right: 1px solid rgba(0, 0, 0, 0.07);
+}
+
+[data-theme="light"] .text-white {
+  color: #1d1d1f !important;
+}
+
+[data-theme="light"] .text-gray-300 {
+  color: #3a3a3c !important;
+}
+
+[data-theme="light"] .text-gray-200 {
+  color: #2c2c2e !important;
+}
+
+[data-theme="light"] .text-gray-400 {
+  color: #6e6e73 !important;
+}
+
+[data-theme="light"] #pageHeading {
+  color: #1d1d1f !important;
+}
+
+[data-theme="light"] .bg-\[\#24252c\],
+[data-theme="light"] .bg-\[\#25262c\],
+[data-theme="light"] .bg-\[\#26272f\] {
+  background-color: #ffffff !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .bg-\[\#1b1c21\],
+[data-theme="light"] .bg-\[\#17181c\],
+[data-theme="light"] .bg-\[\#1a1b1f\],
+[data-theme="light"] .bg-\[\#202127\] {
+  background-color: #f6f8fb !important;
+  border-color: rgba(0, 0, 0, 0.07) !important;
+}
+
+[data-theme="light"] .border-white\/5,
+[data-theme="light"] .border-white\/10,
+[data-theme="light"] .border-white\/\[0\.08\] {
+  border-color: rgba(0, 0, 0, 0.07) !important;
+}
+
+[data-theme="light"] .bento-nav-item {
+  color: #6e6e73;
+}
+
+[data-theme="light"] .bento-nav-item:hover {
+  color: #1d1d1f;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .bento-nav-item.active {
+  background: rgba(0, 0, 0, 0.06);
+  color: #1d1d1f;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .officer-glass-card {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .bento-search-pill-container {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="light"] .bento-search-pill {
+  color: #1d1d1f;
+}
+
+[data-theme="light"] .bento-search-pill::placeholder {
+  color: #86868b;
+}
+
+[data-theme="light"] .btn-circle-action {
+  background: #ffffff;
+  color: #1d1d1f;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .btn-circle-action:hover {
+  background: #f5f6fa;
+}
+
+[data-theme="light"] .card-bento-dark,
+[data-theme="light"] .card-bento-chart,
+[data-theme="light"] .card-bento-pattern {
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.07);
+}
+
+[data-theme="light"] .card-bento-white {
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.07);
+}
+
+[data-theme="light"] .card-bento-pattern {
+  background-image: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.05) 1.2px, transparent 1.2px);
+}
+
+[data-theme="light"] .btn-frosted-pill {
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.8);
+  color: #1d1d1f;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="light"] .btn-frosted-pill:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .theme-switch-capsule {
+  background: #e9ecf2;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .theme-switch-slider {
+  background-color: #cfd5e0;
+}
+
+[data-theme="light"] .modal-content-animated {
+  background-color: rgba(255, 255, 255, 0.98);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: #1d1d1f;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.18);
+}
+
+[data-theme="light"] table th {
+  color: #6e6e73 !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-theme="light"] table td {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+  color: #1d1d1f !important;
+}
+
+[data-theme="light"] select,
+[data-theme="light"] input[type="text"],
+[data-theme="light"] textarea,
+[data-theme="light"] input[type="datetime-local"] {
+  background-color: #f6f8fb !important;
+  color: #1d1d1f !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+[data-theme="light"] .hover\:bg-\[\#202127\]:hover,
+[data-theme="light"] .hover\:bg-\[\#2e3039\]:hover,
+[data-theme="light"] .hover\:bg-\[\#2d2e37\]:hover {
+  background-color: #eaedf3 !important;
+}
+
+[data-theme="light"] .hover\:bg-white\/10:hover,
+[data-theme="light"] .hover\:bg-white\/5:hover {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+[data-theme="light"] .bg-white\/5 {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+[data-theme="light"] .bg-white\/10 {
+  background-color: rgba(0, 0, 0, 0.07) !important;
+}
+
+[data-theme="light"] .border-white\/10,
+[data-theme="light"] .border-white\/5,
+[data-theme="light"] .border-gray-700\/60,
+[data-theme="light"] .border-gray-800 {
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-theme="light"] .calendar-pill {
+  background: #f0f2f7;
+  color: #64748b;
+  border-color: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .calendar-pill.active {
+  background: linear-gradient(180deg, var(--apple-amber) 0%, #f0c500 100%);
+  color: var(--text-dark);
+}
+
+[data-theme="light"] .complaint-filter-pill {
+  color: #6e6e73;
+}
+
+[data-theme="light"] .complaint-filter-pill.active {
+  background: rgba(0, 0, 0, 0.08);
+  color: #1d1d1f;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] #printableTicket {
+  color: #1d1d1f;
+}
+
+[data-theme="light"] #printableTicket .bg-\[\#1b1c21\] {
+  background-color: #f6f8fb !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Light theme for Section 7: ML Evaluation & Confusion Matrix Heatmap */
+[data-theme="light"] #view-mleval .bg-\[\#1b1c21\],
+[data-theme="light"] #view-mleval .bg-\[\#16171b\] {
+  background-color: #f6f8fb !important;
+  color: #1d1d1f !important;
+}
+
+[data-theme="light"] #confusionMatrixContainer table th {
+  background-color: #f0f2f7 !important;
+  color: #1d1d1f !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-theme="light"] #confusionMatrixContainer table td {
+  border-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+[data-theme="light"] #confusionMatrixContainer table td .text-gray-500 {
+  color: #8e8e93 !important;
+}
+
+[data-theme="light"] #confusionMatrixContainer table td.bg-\[\#faea73\]\/15 {
+  background-color: rgba(255, 214, 10, 0.28) !important;
+}
+
+[data-theme="light"] #confusionMatrixContainer table td .text-\[\#faea73\] {
+  color: #a06b00 !important;
+}
+
+[data-theme="light"] #mlDatasetSelect {
+  color: #1d1d1f !important;
+}
+
+[data-theme="light"] #mlDatasetSelect option {
+  background-color: #ffffff !important;
+  color: #1d1d1f !important;
+}
+
+[data-theme="light"] #cmViewActiveBtn.bg-white\/10 {
+  background-color: rgba(0, 0, 0, 0.1) !important;
+  color: #1d1d1f !important;
+}
+
+[data-theme="light"] #cmAccuracyExplanation {
+  color: #8c6000 !important;
+}
+
+/* ==========================================================================
+   Summary Stat Cards Clickable Hover & Interactive Styles
+   ========================================================================== */
+.summary-stat-card {
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.2s ease,
+              background-color 0.2s ease;
+}
+.summary-stat-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(250, 234, 115, 0.45) !important;
+  box-shadow: 0 14px 30px -8px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(250, 234, 115, 0.2);
+}
+.summary-stat-card:active {
+  transform: scale(0.99);
+}
+.summary-stat-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.625rem;
+  padding: 0.35rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.15s ease, border-color 0.15s ease;
+}
+.summary-stat-icon-btn:hover {
+  background: rgba(250, 234, 115, 0.18);
+  border-color: rgba(250, 234, 115, 0.5);
+  transform: scale(1.15);
+}
+[data-theme="light"] .summary-stat-card:hover {
+  border-color: rgba(255, 214, 10, 0.7) !important;
+  box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.09), 0 0 0 1px rgba(255, 214, 10, 0.4);
+}
+[data-theme="light"] .summary-stat-icon-btn {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+[data-theme="light"] .summary-stat-icon-btn:hover {
+  background: rgba(255, 214, 10, 0.25);
+  border-color: rgba(255, 214, 10, 0.8);
+}
+
+/* ==========================================================================
+   Theme-Aware Global Floating Tooltip System
+   Solves browser native OS tooltip contrast issues in Light Mode & card clipping
+   ========================================================================== */
+#globalTrafficTooltip {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999999;
+  pointer-events: none;
+  background-color: var(--tooltip-bg);
+  color: var(--tooltip-text);
+  border: 1px solid var(--tooltip-border);
+  box-shadow: var(--tooltip-shadow);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Plus Jakarta Sans", system-ui, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  max-width: 320px;
+  text-align: center;
+  word-break: normal;
+  white-space: normal;
+  opacity: 0;
+  visibility: hidden;
+  will-change: transform, opacity;
+  transition: opacity 0.16s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.16s cubic-bezier(0.16, 1, 0.3, 1),
+              visibility 0.16s ease,
+              background-color 0.2s ease,
+              color 0.2s ease,
+              border-color 0.2s ease;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+#globalTrafficTooltip.tooltip-visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+#globalTrafficTooltip::after {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background-color: var(--tooltip-arrow);
+  border: 1px solid var(--tooltip-border);
+  transform: rotate(45deg);
+  pointer-events: none;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+#globalTrafficTooltip.placement-top::after {
+  bottom: -5px;
+  left: var(--arrow-left, 50%);
+  margin-left: -4px;
+  border-top: none;
+  border-left: none;
+}
+
+#globalTrafficTooltip.placement-bottom::after {
+  top: -5px;
+  left: var(--arrow-left, 50%);
+  margin-left: -4px;
+  border-bottom: none;
+  border-right: none;
+}
+
+[data-theme="light"] input[type="range"] {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] input[type="range"]::-webkit-slider-thumb {
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.28);
+}
+
+/* ==========================================================================
+   Principle 14: Reduced Motion & Accessibility
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .view-section,
+  .modal-content-animated {
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+
+  .bento-app-container,
+  .bento-sidebar,
+  .card-bento-dark,
+  .card-bento-pattern,
+  .card-bento-chart,
+  .card-bento-media,
+  .btn-frosted-pill,
+  .bento-search-pill-container {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background-color: #1a1b20 !important;
+  }
+}

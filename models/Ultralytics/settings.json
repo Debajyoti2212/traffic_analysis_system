@@ -1,0 +1,19 @@
+{
+  "settings_version": "0.0.8",
+  "datasets_dir": "C:\\Users\\hp\\Desktop\\traffi_analysis_system\\datasets",
+  "weights_dir": "weights",
+  "runs_dir": "runs",
+  "uuid": "f730ccaccbe18fdd1eb8d96f67dffab9fd794ab43f2e725e0d830290c5c2a513",
+  "sync": true,
+  "api_key": "",
+  "openai_api_key": "",
+  "clearml": true,
+  "comet": true,
+  "dvc": true,
+  "mlflow": true,
+  "raytune": true,
+  "tensorboard": false,
+  "wandb": false,
+  "vscode_msg": true,
+  "openvino_msg": true
+}

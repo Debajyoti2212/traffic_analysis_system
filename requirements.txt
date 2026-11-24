@@ -1,0 +1,17 @@
+# Core Dependencies for AI Smart Traffic & Road Safety Analyser
+fastapi>=0.110.0
+uvicorn>=0.28.0
+python-multipart>=0.0.9
+opencv-python>=4.9.0
+torch>=2.2.0
+torchvision>=0.17.0
+ultralytics>=8.1.0
+spacy>=3.7.0
+scikit-learn>=1.4.0
+pandas>=2.2.0
+numpy>=1.26.0
+pillow>=10.2.0
+transformers>=4.38.0
+requests>=2.31.0
+
+easyocr>=1.7.0
