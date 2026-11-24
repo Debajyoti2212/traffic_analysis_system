@@ -213,12 +213,6 @@ const API = {
     return await res.json();
   },
 
-  // Benchmarking & Audit Endpoints
-  async getBenchmarks() {
-    const res = await fetch(`${BACKEND_BASE}/api/benchmarks`);
-    return await res.json();
-  },
-
   async generateDailyAudit(junctionName = "Sector 14 Smart Junction, NH-44") {
     const res = await fetch(`${BACKEND_BASE}/api/report/generate-audit`, {
       method: "POST",
@@ -228,53 +222,16 @@ const API = {
     return await res.json();
   },
 
-  // Machine Learning Real Model Evaluation
-  async getMLEvaluation(dataset = "traffic", refresh = false) {
-    const url = `${BACKEND_BASE}/api/ml/evaluation?dataset=${encodeURIComponent(dataset)}&refresh=${refresh}`;
-    const res = await fetch(url);
+  // Machine Learning Model Evaluation
+  async getMLEvaluation() {
+    const res = await fetch(`${BACKEND_BASE}/api/ml/evaluation`);
     if (!res.ok) throw new Error("Failed to fetch ML evaluation data");
     return await res.json();
   },
 
-  async refreshMLEvaluation(dataset = "traffic") {
-    const url = `${BACKEND_BASE}/api/ml/evaluation/refresh?dataset=${encodeURIComponent(dataset)}`;
-    const res = await fetch(url, { method: "POST" });
+  async refreshMLEvaluation() {
+    const res = await fetch(`${BACKEND_BASE}/api/ml/evaluation/refresh`, { method: "POST" });
     if (!res.ok) throw new Error("Failed to refresh ML evaluation");
-    return await res.json();
-  },
-
-  async getMLDatasets() {
-    const res = await fetch(`${BACKEND_BASE}/api/ml/datasets`);
-    if (!res.ok) throw new Error("Failed to fetch ML datasets");
-    return await res.json();
-  },
-
-  // Applied AI Syllabus Alignment Endpoints
-  async getNLPEvaluation() {
-    const res = await fetch(`${BACKEND_BASE}/api/nlp/evaluation`);
-    if (!res.ok) throw new Error("Failed to fetch NLP evaluation");
-    return await res.json();
-  },
-
-  async getSyllabusMapping() {
-    const res = await fetch(`${BACKEND_BASE}/api/syllabus/mapping`);
-    if (!res.ok) throw new Error("Failed to fetch syllabus mapping");
-    return await res.json();
-  },
-
-  async getCVBasicsDemo() {
-    const res = await fetch(`${BACKEND_BASE}/api/cv/demo-cv-basics`);
-    if (!res.ok) throw new Error("Failed to fetch CV basics demo");
-    return await res.json();
-  },
-
-  async demoNLPBasics(text = "") {
-    const res = await fetch(`${BACKEND_BASE}/api/nlp/demo-nlp-basics`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text })
-    });
-    if (!res.ok) throw new Error("Failed to run NLP basics demo");
     return await res.json();
   }
 };

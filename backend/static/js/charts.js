@@ -86,7 +86,7 @@ const ChartsManager = {
         labels: ["T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9", "T10"],
         datasets: [
           {
-            label: "Edge Inference FPS",
+            label: "Stream Processing FPS",
             data: [26, 28, 25, 29, 27, 30, 28, 29, 27, 28.5],
             borderColor: "rgba(250, 234, 115, 0.85)",
             borderWidth: 2,
