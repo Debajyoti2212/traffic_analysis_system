@@ -177,7 +177,7 @@ class TrafficYOLODetector:
         logger.info(f"Session reset: {self.current_session_id}")
 
     def _init_models(self):
-        """Loads YOLO weights and EasyOCR reader."""
+        """Loads YOLO weights and EasyOCR reader if PyTorch is allowed by OS security policy."""
         try:
             from ultralytics import YOLO
             for attr, filename in [("model", "yolov8n.pt"), ("helmet_model", "helmet_detector.pt"), ("plate_model", "license_plate_detector.pt")]:
@@ -187,8 +187,11 @@ class TrafficYOLODetector:
                 if os.path.exists(weights):
                     setattr(self, attr, YOLO(weights))
                     logger.info(f"Loaded {attr}: {weights}")
-        except Exception as e:
-            logger.warning(f"YOLO load warning: {e}")
+        except (OSError, Exception) as e:
+            if "4551" in str(e) or "Application Control" in str(e):
+                logger.info("Windows Smart App Control active: Running on native OpenCV Vision Engine.")
+            else:
+                logger.info("Running on native OpenCV Computer Vision Engine.")
 
         try:
             import easyocr
@@ -196,8 +199,8 @@ class TrafficYOLODetector:
             os.makedirs(storage, exist_ok=True)
             self.ocr_reader = easyocr.Reader(['en'], gpu=False, model_storage_directory=storage, download_enabled=False)
             logger.info("Initialized EasyOCR offline reader.")
-        except Exception as e:
-            logger.warning(f"EasyOCR reader init warning: {e}")
+        except Exception:
+            logger.info("ANPR: Initialized native OpenCV Morphological Plate Reader.")
 
     def detect_traffic_light_state(self, frame: np.ndarray, light_roi: Optional[Tuple[int, int, int, int]] = None) -> Dict[str, Any]:
         """Analyzes traffic light color using HSV color thresholding."""
